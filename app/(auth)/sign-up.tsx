@@ -15,6 +15,7 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
 
   const handleSignUp = async () => {
+    console.info("SIGN UP PRESS FUNC")
     const signUpResponse = await authClient.signUp.email({
       email,
       password,
@@ -24,6 +25,8 @@ export default function SignUp() {
       Alert.alert("Error", signUpResponse.error.message);
       return;
     }
+    console.info(signUpResponse.data)
+    console.info("NO ERRORS SIGNING UP")
   };
 
   return (
