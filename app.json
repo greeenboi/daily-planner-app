@@ -9,6 +9,7 @@
       "expo-secure-store"
     ],
     "name": "easein-daily-planner",
-    "slug": "easein-daily-planner"
+    "slug": "easein-daily-planner",
+    "userInterfaceStyle": "dark"
   }
 }
