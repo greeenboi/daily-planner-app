@@ -20,14 +20,14 @@
 		},
 
 		"androidStatusBar": {
-			"barStyle": "light-content",
-			"backgroundColor": "#000000",
+			"barStyle": "dark-content",
 			"hidden": false,
-			"translucent": false
+			"translucent": true
 		},
 		"androidNavigationBar": {
 			"barStyle": "light-content",
-			"backgroundColor": "#000000"
+			"backgroundColor": "#000000",
+      "visible": "sticky-immersive"
 		},
 
 		"developmentClient": { "silentLaunch": true },
@@ -36,12 +36,22 @@
 			"iosDisplayInForeground": true
 		},
 
-		"splash": {
-			"backgroundColor": "#0B0B0F",
-			"resizeMode": "contain"
-		},
-
 		"web": { "output": "server" },
-		"plugins": ["expo-router", "expo-secure-store"]
+		"plugins": [
+      "expo-router", 
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#7265E2",
+          "image": "./assets/splash-icon.svg",
+          "dark": {
+            "image": "./assets/splash-icon.svg",
+            "backgroundColor": "#7265E2"
+          },
+          "imageWidth": 80
+        }
+      ]
+    ]
 	}
 }
