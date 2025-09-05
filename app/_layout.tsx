@@ -1,8 +1,9 @@
 import { Image } from "expo-image";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -22,6 +23,7 @@ export default function RootLayout() {
 	const sessionState = authClient.useSession() as SessionState;
 	const session = sessionState?.data;
 	const isAuthenticated = !!session;
+	const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
 	const isLoading = useMemo(
 		() =>
 			Boolean(
@@ -32,6 +34,30 @@ export default function RootLayout() {
 			),
 		[sessionState?.isPending, sessionState?.isLoading, sessionState?.status],
 	);
+
+	// Load onboarding status (only needed when not authenticated)
+	useEffect(() => {
+		let mounted = true;
+		async function loadOnboarding() {
+			try {
+				if (isAuthenticated) {
+					// Not needed for authenticated users
+					if (mounted) setOnboardingCompleted(null);
+					return;
+				}
+				const val = await SecureStore.getItemAsync("onboarding_completed");
+				if (!mounted) return;
+				setOnboardingCompleted(val === "true");
+			} catch {
+				if (mounted) setOnboardingCompleted(false);
+			}
+		}
+
+		loadOnboarding();
+		return () => {
+			mounted = false;
+		};
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		// Hide the native splash as soon as our JS is ready; we'll show a manual splash while loading.
@@ -44,7 +70,8 @@ export default function RootLayout() {
 		}
 	}, [isLoading]);
 
-	if (isLoading)
+	// Wait for auth and onboarding check to avoid flicker when unauthenticated
+	if (isLoading || (!isAuthenticated && onboardingCompleted === null))
 		return (
 			<View className="flex-1 bg-[#1E1E1E]">
 				<Image
@@ -61,7 +88,11 @@ export default function RootLayout() {
 				<Stack.Protected guard={isAuthenticated}>
 					<Stack.Screen name="(app)" />
 				</Stack.Protected>
-				<Stack.Protected guard={!isAuthenticated}>
+				{/* Unauthenticated: route to onboarding if not completed, otherwise to auth */}
+				<Stack.Protected guard={!isAuthenticated && onboardingCompleted === false}>
+					<Stack.Screen name="onboarding" />
+				</Stack.Protected>
+				<Stack.Protected guard={!isAuthenticated && onboardingCompleted === true}>
 					<Stack.Screen name="(auth)" />
 				</Stack.Protected>
 			</Stack>
