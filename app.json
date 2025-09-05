@@ -1,12 +1,47 @@
 {
 	"expo": {
-		"scheme": "myapp",
-		"web": {
-			"output": "server"
-		},
-		"plugins": ["expo-router", "expo-secure-store"],
-		"name": "easein-daily-planner",
+		"name": "EaseIn Daily Planner",
+		"description": "A focused daily planner to schedule tasks, track habits, and stay organized.",
 		"slug": "easein-daily-planner",
-		"userInterfaceStyle": "dark"
+		"version": "1.0.0",
+		"runtimeVersion": { "policy": "appVersion" },
+		"platforms": ["ios", "android", "web"],
+		"orientation": "portrait",
+		"userInterfaceStyle": "dark",
+		"backgroundColor": "#0B0B0F",
+		"primaryColor": "#7C3AED",
+
+		"scheme": ["myapp", "easein"],
+
+		"updates": {
+			"enabled": true,
+			"checkAutomatically": "ON_LOAD",
+			"fallbackToCacheTimeout": 0
+		},
+
+		"androidStatusBar": {
+			"barStyle": "light-content",
+			"backgroundColor": "#000000",
+			"hidden": false,
+			"translucent": false
+		},
+		"androidNavigationBar": {
+			"barStyle": "light-content",
+			"backgroundColor": "#000000"
+		},
+
+		"developmentClient": { "silentLaunch": true },
+
+		"notification": {
+			"iosDisplayInForeground": true
+		},
+
+		"splash": {
+			"backgroundColor": "#0B0B0F",
+			"resizeMode": "contain"
+		},
+
+		"web": { "output": "server" },
+		"plugins": ["expo-router", "expo-secure-store"]
 	}
 }
