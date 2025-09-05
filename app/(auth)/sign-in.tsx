@@ -1,7 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { Link } from "expo-router";
 import React from "react";
-import { Animated, Easing, View } from "react-native";
+import { Animated, Easing, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 
 import BackgroundImage from "@/components/background-image";
 import { AlertIcon, AlertText, Alert as GSAlert } from "@/components/ui/alert";
@@ -95,15 +95,27 @@ export default function SignIn() {
 	return (
 		<View style={{ flex: 1, backgroundColor: "#1E1E1E" }}>
 			<BackgroundImage />
-			<Animated.View
-				style={{
-					opacity,
-					transform: [{ translateY }],
-					flex: 1,
-					justifyContent: "flex-end",
-				}}
+			<KeyboardAvoidingView
+				style={{ flex: 1 }}
+				behavior={Platform.select({ ios: "padding", android: "height" })}
+				enabled
+				keyboardVerticalOffset={0}
 			>
-				<VStack className="px-4 pb-12" space="md" reversed={false}>
+				<ScrollView
+					style={{ flex: 1 }}
+					contentContainerStyle={{ flexGrow: 1 }}
+					keyboardShouldPersistTaps="handled"
+					automaticallyAdjustKeyboardInsets
+				>
+					<Animated.View
+					style={{
+						opacity,
+						transform: [{ translateY }],
+						flex: 1,
+						justifyContent: "flex-end",
+					}}
+				>
+					<VStack className="px-4 pb-12" space="md" reversed={false}>
 					<Center className="w-full">
 						<Image
 							// Use inline styles to avoid CSSInterop dynamic variable remount warnings
@@ -195,8 +207,10 @@ export default function SignIn() {
 							</Link>
 						</Text>
 					</Card>
-				</VStack>
-			</Animated.View>
+					</VStack>
+					</Animated.View>
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</View>
 	);
 }
