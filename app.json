@@ -1,15 +1,12 @@
 {
-  "expo": {
-    "scheme": "myapp",
-    "web": {
-      "output": "server"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store"
-    ],
-    "name": "easein-daily-planner",
-    "slug": "easein-daily-planner",
-    "userInterfaceStyle": "dark"
-  }
+	"expo": {
+		"scheme": "myapp",
+		"web": {
+			"output": "server"
+		},
+		"plugins": ["expo-router", "expo-secure-store"],
+		"name": "easein-daily-planner",
+		"slug": "easein-daily-planner",
+		"userInterfaceStyle": "dark"
+	}
 }
