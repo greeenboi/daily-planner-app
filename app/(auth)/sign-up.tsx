@@ -1,71 +1,222 @@
 import { authClient } from "@/lib/auth-client";
-import { useState } from "react";
+import { Link } from "expo-router";
+import React from "react";
+import { Animated, Easing, View } from "react-native";
+
+import BackgroundImage from "@/components/background-image";
+import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Center } from "@/components/ui/center";
 import {
-	Alert,
-	Button,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-} from "react-native";
+	FormControl,
+	FormControlError,
+	FormControlErrorIcon,
+	FormControlErrorText,
+	FormControlHelper,
+	FormControlHelperText,
+	FormControlLabel,
+	FormControlLabelText,
+} from "@/components/ui/form-control";
+import { Heading } from "@/components/ui/heading";
+import { AlertCircleIcon } from "@/components/ui/icon";
+import { Image } from "@/components/ui/image";
+import { Input, InputField } from "@/components/ui/input";
+import { LinkText } from "@/components/ui/link";
+import { Text } from "@/components/ui/text";
+import {
+	Toast,
+	ToastDescription,
+	ToastTitle,
+	useToast,
+} from "@/components/ui/toast";
+import { VStack } from "@/components/ui/vstack";
 
 export default function SignUp() {
-	const [email, setEmail] = useState("");
-	const [name, setName] = useState("");
-	const [password, setPassword] = useState("");
+	const toast = useToast();
+	const [email, setEmail] = React.useState("");
+	const [name, setName] = React.useState("");
+	const [password, setPassword] = React.useState("");
+	const [submitting, setSubmitting] = React.useState(false);
+	const [error, setError] = React.useState<string | null>(null);
+
+	// Enter animation: fade in + slide up
+	const translateY = React.useRef(new Animated.Value(40)).current;
+	const opacity = React.useRef(new Animated.Value(0)).current;
+	React.useEffect(() => {
+		Animated.parallel([
+			Animated.timing(translateY, {
+				toValue: 0,
+				duration: 450,
+				easing: Easing.out(Easing.cubic),
+				useNativeDriver: true,
+			}),
+			Animated.timing(opacity, {
+				toValue: 1,
+				duration: 300,
+				easing: Easing.out(Easing.cubic),
+				useNativeDriver: true,
+			}),
+		]).start();
+	}, [opacity, translateY]);
+
+	const isEmailValid = /.+@.+\..+/.test(email);
+	const isPasswordValid = password.length >= 6;
+	const isNameValid = name.trim().length >= 2;
 
 	const handleSignUp = async () => {
-		console.info("SIGN UP PRESS FUNC");
-		const signUpResponse = await authClient.signUp.email({
-			email,
-			password,
-			name,
-		});
-		if (signUpResponse.error) {
-			Alert.alert("Error", signUpResponse.error.message);
+		setError(null);
+		if (!isEmailValid || !isPasswordValid || !isNameValid) {
+			setError("Please fill all fields correctly.");
 			return;
 		}
-		console.info(signUpResponse.data);
-		console.info("NO ERRORS SIGNING UP");
+		setSubmitting(true);
+		try {
+			const res = await authClient.signUp.email({ email, password, name });
+			if (res.error) {
+				setError(res.error.message || "signup handler error");
+				return;
+			}
+			const id = Math.random().toString();
+			toast.show({
+				id,
+				placement: "top",
+				duration: 2500,
+				render: ({ id }) => (
+					<Toast nativeID={`toast-${id}`} action="muted" variant="solid">
+						<ToastTitle>Account created</ToastTitle>
+						<ToastDescription>Welcome, {name}!</ToastDescription>
+					</Toast>
+				),
+			});
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	return (
-		<ScrollView contentInsetAdjustmentBehavior="automatic">
-			<Text style={{ fontSize: 32, fontWeight: "bold", margin: 10 }}>
-				Sign Up
-			</Text>
-			<TextInput
-				placeholder="Name"
-				value={name}
-				onChangeText={setName}
-				style={styles.input}
-			/>
-			<TextInput
-				placeholder="Email"
-				value={email}
-				onChangeText={setEmail}
-				inputMode="email"
-				autoCapitalize="none"
-				style={styles.input}
-			/>
-			<TextInput
-				placeholder="Password"
-				value={password}
-				onChangeText={setPassword}
-				style={styles.input}
-				secureTextEntry
-			/>
-			<Button title="Sign up" onPress={handleSignUp} />
-		</ScrollView>
+		<View style={{ flex: 1, backgroundColor: "#1E1E1E" }}>
+			<BackgroundImage />
+			<Animated.View
+				style={{
+					opacity,
+					transform: [{ translateY }],
+					flex: 1,
+					justifyContent: "flex-end",
+				}}
+			>
+				<VStack className="px-4 pb-12" space="md" reversed={false}>
+					{/* <Image source={} contentFit="contain" /> */}
+					<Center className="w-full">
+						<Image
+							// size="2xl"
+							className=" w-[356px] h-[345px]"
+							source={require("../../assets/illustrations/rocket-girl.png")}
+							alt="image"
+						/>
+					</Center>
+					<Card size="md" variant="elevated" className="p-4 gap-3 border-0">
+						<Heading size="md">Create your account</Heading>
+						<Text size="sm" className="text-typography-500">
+							Sign up to start planning your day.
+						</Text>
+
+						<FormControl isInvalid={!isNameValid && name.length > 0}>
+							<FormControlLabel>
+								<FormControlLabelText>Name</FormControlLabelText>
+							</FormControlLabel>
+							<Input>
+								<InputField
+									placeholder="Jane Doe"
+									value={name}
+									onChangeText={setName}
+									autoCapitalize="words"
+								/>
+							</Input>
+							<FormControlHelper>
+								<FormControlHelperText>
+									At least 2 characters.
+								</FormControlHelperText>
+							</FormControlHelper>
+							<FormControlError>
+								<FormControlErrorIcon as={AlertCircleIcon} />
+								<FormControlErrorText>
+									Please enter your name.
+								</FormControlErrorText>
+							</FormControlError>
+						</FormControl>
+
+						<FormControl isInvalid={!isEmailValid && email.length > 0}>
+							<FormControlLabel>
+								<FormControlLabelText>Email</FormControlLabelText>
+							</FormControlLabel>
+							<Input>
+								<InputField
+									placeholder="you@example.com"
+									value={email}
+									onChangeText={setEmail}
+									inputMode="email"
+									autoCapitalize="none"
+								/>
+							</Input>
+							<FormControlHelper>
+								<FormControlHelperText>
+									Use a valid email address.
+								</FormControlHelperText>
+							</FormControlHelper>
+							<FormControlError>
+								<FormControlErrorIcon as={AlertCircleIcon} />
+								<FormControlErrorText>
+									Enter a valid email.
+								</FormControlErrorText>
+							</FormControlError>
+						</FormControl>
+
+						<FormControl isInvalid={!isPasswordValid && password.length > 0}>
+							<FormControlLabel>
+								<FormControlLabelText>Password</FormControlLabelText>
+							</FormControlLabel>
+							<Input>
+								<InputField
+									placeholder="••••••"
+									value={password}
+									onChangeText={setPassword}
+									secureTextEntry
+								/>
+							</Input>
+							<FormControlHelper>
+								<FormControlHelperText>
+									Must be at least 6 characters.
+								</FormControlHelperText>
+							</FormControlHelper>
+							<FormControlError>
+								<FormControlErrorIcon as={AlertCircleIcon} />
+								<FormControlErrorText>Password too short.</FormControlErrorText>
+							</FormControlError>
+						</FormControl>
+
+						{error ? <Text className="text-error-600">{error}</Text> : null}
+
+						<Button
+							action="primary"
+							variant="solid"
+							onPress={handleSignUp}
+							isDisabled={submitting}
+						>
+							{submitting ? (
+								<ButtonSpinner />
+							) : (
+								<ButtonText>Sign up</ButtonText>
+							)}
+						</Button>
+						<Text size="sm">
+							Already have an account?{" "}
+							<Link href="/(auth)/sign-in">
+								<LinkText>Sign in</LinkText>
+							</Link>
+						</Text>
+					</Card>
+				</VStack>
+			</Animated.View>
+		</View>
 	);
 }
-
-const styles = StyleSheet.create({
-	input: {
-		borderWidth: 1,
-		borderColor: "gray",
-		borderRadius: 10,
-		padding: 10,
-		margin: 10,
-	},
-});
