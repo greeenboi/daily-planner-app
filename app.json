@@ -27,7 +27,7 @@
 		"androidNavigationBar": {
 			"barStyle": "light-content",
 			"backgroundColor": "#000000",
-      "visible": "sticky-immersive"
+			"visible": "sticky-immersive"
 		},
 
 		"developmentClient": { "silentLaunch": true },
@@ -38,20 +38,20 @@
 
 		"web": { "output": "server" },
 		"plugins": [
-      "expo-router", 
-      "expo-secure-store",
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#7265E2",
-          "image": "./assets/splash-icon.svg",
-          "dark": {
-            "image": "./assets/splash-icon.svg",
-            "backgroundColor": "#7265E2"
-          },
-          "imageWidth": 80
-        }
-      ]
-    ]
+			"expo-router",
+			"expo-secure-store",
+			[
+				"expo-splash-screen",
+				{
+					"backgroundColor": "#7265E2",
+					"image": "./assets/splash-icon.svg",
+					"dark": {
+						"image": "./assets/splash-icon.svg",
+						"backgroundColor": "#7265E2"
+					},
+					"imageWidth": 80
+				}
+			]
+		]
 	}
 }

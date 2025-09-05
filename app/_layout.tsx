@@ -1,8 +1,8 @@
+import { Image } from "expo-image";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useMemo } from "react";
 import { View } from "react-native";
-import { Image } from "expo-image";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -14,8 +14,8 @@ import type { SessionState } from "@/lib/types/session-state";
 void SplashScreen.preventAutoHideAsync();
 
 SplashScreen.setOptions({
-  duration: 1000,
-  fade: true,
+	duration: 1000,
+	fade: true,
 });
 
 export default function RootLayout() {
