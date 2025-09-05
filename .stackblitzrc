@@ -1,7 +1,0 @@
-{
-  "installDependencies": false,
-  "startCommand": "npm i -g bun && bun i && bun start",
-  "env": {
-    "NODE_ENV": "development"
-  }
-}
