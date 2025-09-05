@@ -105,13 +105,14 @@ export default function SignUp() {
 				}}
 			>
 				<VStack className="px-4 pb-12" space="md" reversed={false}>
-					{/* <Image source={} contentFit="contain" /> */}
 					<Center className="w-full">
 						<Image
-							// size="2xl"
+							// Use inline styles to avoid CSSInterop dynamic variable remount warnings
+							style={{ width: 356, height: 345, transform: [{ scale: 0.95 }] }}
 							className=" w-[356px] h-[345px]"
 							source={require("../../assets/illustrations/rocket-girl.png")}
 							alt="image"
+							resizeMode="contain"
 						/>
 					</Center>
 					<Card size="md" variant="elevated" className="p-4 gap-3 border-0">

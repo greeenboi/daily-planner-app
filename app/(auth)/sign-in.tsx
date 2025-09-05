@@ -104,13 +104,14 @@ export default function SignIn() {
 				}}
 			>
 				<VStack className="px-4 pb-12" space="md" reversed={false}>
-					{/* <Image style={{zIndex: 10}} source={require("../../assets/illustrations/rocket-girl.png")} contentFit="contain" /> */}
 					<Center className="w-full">
 						<Image
-							// size="3xl"
+							// Use inline styles to avoid CSSInterop dynamic variable remount warnings
+							style={{ width: 375, height: 363, transform: [{ scale: 0.95 }] }}
 							className=" w-[375px] h-[363px]"
 							source={require("../../assets/illustrations/rocket-girl.png")}
 							alt="image"
+							resizeMode="contain"
 						/>
 					</Center>
 					<Card size="md" variant="elevated" className="p-4 gap-3 border-0">
