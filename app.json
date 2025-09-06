@@ -1,65 +1,58 @@
 {
-  "expo": {
-    "name": "EaseIn Daily Planner",
-    "description": "A focused daily planner to schedule tasks, track habits, and stay organized.",
-    "slug": "easein-daily-planner",
-    "version": "1.0.0",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "platforms": [
-      "ios",
-      "android",
-      "web"
-    ],
-    "orientation": "portrait",
-    "userInterfaceStyle": "dark",
-    "backgroundColor": "#0B0B0F",
-    "primaryColor": "#7C3AED",
-    "scheme": [
-      "myapp",
-      "easein"
-    ],
-    "updates": {
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0
-    },
-    "androidStatusBar": {
-      "barStyle": "dark-content",
-      "hidden": false,
-      "translucent": true
-    },
-    "androidNavigationBar": {
-      "barStyle": "light-content",
-      "backgroundColor": "#000000",
-      "visible": "sticky-immersive"
-    },
-    "developmentClient": {
-      "silentLaunch": true
-    },
-    "notification": {
-      "iosDisplayInForeground": true
-    },
-    "web": {
-      "output": "server"
-    },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store",
-      [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#7265E2",
-          "image": "./assets/splash-icon.svg",
-          "dark": {
-            "image": "./assets/splash-icon.svg",
-            "backgroundColor": "#7265E2"
-          },
-          "imageWidth": 80
-        }
-      ],
-      "expo-audio"
-    ]
-  }
+	"expo": {
+		"name": "EaseIn Daily Planner",
+		"description": "A focused daily planner to schedule tasks, track habits, and stay organized.",
+		"slug": "easein-daily-planner",
+		"version": "1.0.0",
+		"runtimeVersion": {
+			"policy": "appVersion"
+		},
+		"platforms": ["ios", "android", "web"],
+		"orientation": "portrait",
+		"userInterfaceStyle": "dark",
+		"backgroundColor": "#0B0B0F",
+		"primaryColor": "#7C3AED",
+		"scheme": ["myapp", "easein"],
+		"updates": {
+			"enabled": true,
+			"checkAutomatically": "ON_LOAD",
+			"fallbackToCacheTimeout": 0
+		},
+		"androidStatusBar": {
+			"barStyle": "dark-content",
+			"hidden": false,
+			"translucent": true
+		},
+		"androidNavigationBar": {
+			"barStyle": "light-content",
+			"backgroundColor": "#000000",
+			"visible": "sticky-immersive"
+		},
+		"developmentClient": {
+			"silentLaunch": true
+		},
+		"notification": {
+			"iosDisplayInForeground": true
+		},
+		"web": {
+			"output": "server"
+		},
+		"plugins": [
+			"expo-router",
+			"expo-secure-store",
+			[
+				"expo-splash-screen",
+				{
+					"backgroundColor": "#7265E2",
+					"image": "./assets/splash-icon.svg",
+					"dark": {
+						"image": "./assets/splash-icon.svg",
+						"backgroundColor": "#7265E2"
+					},
+					"imageWidth": 80
+				}
+			],
+			"expo-audio"
+		]
+	}
 }

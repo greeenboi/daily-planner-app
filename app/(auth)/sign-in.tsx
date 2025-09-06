@@ -1,9 +1,16 @@
 import { authClient } from "@/lib/auth-client";
 import { Link } from "expo-router";
-import React from "react";
-import { Animated, Easing, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import React from "react";
+import {
+	Animated,
+	Easing,
+	KeyboardAvoidingView,
+	Platform,
+	ScrollView,
+	View,
+} from "react-native";
 
 import BackgroundImage from "@/components/background-image";
 import { AlertIcon, AlertText, Alert as GSAlert } from "@/components/ui/alert";
@@ -111,129 +118,144 @@ export default function SignIn() {
 					automaticallyAdjustKeyboardInsets
 				>
 					<Animated.View
-					style={{
-						opacity,
-						transform: [{ translateY }],
-						flex: 1,
-						justifyContent: "flex-end",
-					}}
-				>
-					<VStack className="px-4 pb-12" space="md" reversed={false}>
-					<Center className="w-full">
-						<Image
-							// Use inline styles to avoid CSSInterop dynamic variable remount warnings
-							style={{ width: 375, height: 363, transform: [{ scale: 0.95 }] }}
-							className=" w-[375px] h-[363px]"
-							source={require("../../assets/illustrations/rocket-girl.png")}
-							alt="image"
-							resizeMode="contain"
-						/>
-					</Center>
-					<Card size="md" variant="elevated" className="p-4 gap-3 border-0">
-						<Heading size="md">Welcome back</Heading>
-						<Text size="sm" className="text-typography-500">
-							Sign in to continue planning.
-						</Text>
-
-						<FormControl isInvalid={!isEmailValid && email.length > 0}>
-							<FormControlLabel>
-								<FormControlLabelText>Email</FormControlLabelText>
-							</FormControlLabel>
-							<Input>
-								<InputField
-									placeholder="you@example.com"
-									value={email}
-									onChangeText={setEmail}
-									inputMode="email"
-									autoCapitalize="none"
+						style={{
+							opacity,
+							transform: [{ translateY }],
+							flex: 1,
+							justifyContent: "flex-end",
+						}}
+					>
+						<VStack className="px-4 pb-12" space="md" reversed={false}>
+							<Center className="w-full">
+								<Image
+									// Use inline styles to avoid CSSInterop dynamic variable remount warnings
+									style={{
+										width: 375,
+										height: 363,
+										transform: [{ scale: 0.95 }],
+									}}
+									className=" w-[375px] h-[363px]"
+									source={require("../../assets/illustrations/rocket-girl.png")}
+									alt="image"
+									resizeMode="contain"
 								/>
-							</Input>
-							<FormControlHelper>
-								<FormControlHelperText>
-									Use a valid email address.
-								</FormControlHelperText>
-							</FormControlHelper>
-							<FormControlError>
-								<FormControlErrorIcon as={AlertCircleIcon} />
-								<FormControlErrorText>
-									Enter a valid email.
-								</FormControlErrorText>
-							</FormControlError>
-						</FormControl>
+							</Center>
+							<Card size="md" variant="elevated" className="p-4 gap-3 border-0">
+								<Heading size="md">Welcome back</Heading>
+								<Text size="sm" className="text-typography-500">
+									Sign in to continue planning.
+								</Text>
 
-						<FormControl isInvalid={!isPasswordValid && password.length > 0}>
-							<FormControlLabel>
-								<FormControlLabelText>Password</FormControlLabelText>
-							</FormControlLabel>
-							<Input>
-								<InputField
-									placeholder="••••••"
-									value={password}
-									onChangeText={setPassword}
-									secureTextEntry
-								/>
-							</Input>
-							<FormControlHelper>
-								<FormControlHelperText>
-									Must be at least 6 characters.
-								</FormControlHelperText>
-							</FormControlHelper>
-							<FormControlError>
-								<FormControlErrorIcon as={AlertCircleIcon} />
-								<FormControlErrorText>Password too short.</FormControlErrorText>
-							</FormControlError>
-						</FormControl>
+								<FormControl isInvalid={!isEmailValid && email.length > 0}>
+									<FormControlLabel>
+										<FormControlLabelText>Email</FormControlLabelText>
+									</FormControlLabel>
+									<Input>
+										<InputField
+											placeholder="you@example.com"
+											value={email}
+											onChangeText={setEmail}
+											inputMode="email"
+											autoCapitalize="none"
+										/>
+									</Input>
+									<FormControlHelper>
+										<FormControlHelperText>
+											Use a valid email address.
+										</FormControlHelperText>
+									</FormControlHelper>
+									<FormControlError>
+										<FormControlErrorIcon as={AlertCircleIcon} />
+										<FormControlErrorText>
+											Enter a valid email.
+										</FormControlErrorText>
+									</FormControlError>
+								</FormControl>
 
-						{error ? (
-							<GSAlert action="muted" variant="outline">
-								<AlertIcon as={InfoIcon} />
-								<AlertText>{error}</AlertText>
-							</GSAlert>
-						) : null}
+								<FormControl
+									isInvalid={!isPasswordValid && password.length > 0}
+								>
+									<FormControlLabel>
+										<FormControlLabelText>Password</FormControlLabelText>
+									</FormControlLabel>
+									<Input>
+										<InputField
+											placeholder="••••••"
+											value={password}
+											onChangeText={setPassword}
+											secureTextEntry
+										/>
+									</Input>
+									<FormControlHelper>
+										<FormControlHelperText>
+											Must be at least 6 characters.
+										</FormControlHelperText>
+									</FormControlHelper>
+									<FormControlError>
+										<FormControlErrorIcon as={AlertCircleIcon} />
+										<FormControlErrorText>
+											Password too short.
+										</FormControlErrorText>
+									</FormControlError>
+								</FormControl>
 
-						<Button
-							action="primary"
-							variant="solid"
-							onPress={handleLogin}
-							isDisabled={submitting}
-						>
-							{submitting ? (
-								<ButtonSpinner />
-							) : (
-								<ButtonText>Sign in</ButtonText>
-							)}
-						</Button>
-						<Text size="sm">
-							No account yet?{" "}
-							<Link href="/(auth)/sign-up">
-								<LinkText>Create one</LinkText>
-							</Link>
-						</Text>
-					</Card>
-					</VStack>
+								{error ? (
+									<GSAlert action="muted" variant="outline">
+										<AlertIcon as={InfoIcon} />
+										<AlertText>{error}</AlertText>
+									</GSAlert>
+								) : null}
+
+								<Button
+									action="primary"
+									variant="solid"
+									onPress={handleLogin}
+									isDisabled={submitting}
+								>
+									{submitting ? (
+										<ButtonSpinner />
+									) : (
+										<ButtonText>Sign in</ButtonText>
+									)}
+								</Button>
+								<Text size="sm">
+									No account yet?{" "}
+									<Link href="/(auth)/sign-up">
+										<LinkText>Create one</LinkText>
+									</Link>
+								</Text>
+							</Card>
+						</VStack>
 						{/* Dev utility: reset onboarding flag */}
 						<View style={{ alignItems: "center", marginTop: 8 }}>
 							<Text
 								onPress={async () => {
-								await SecureStore.setItemAsync("onboarding_completed", "false");
-								toast.show({
-									id: Math.random().toString(),
-									placement: "bottom",
-									duration: 1500,
-									render: ({ id }) => (
-										<Toast nativeID={`toast-${id}`} action="muted" variant="solid">
-											<ToastTitle>Onboarding reset</ToastTitle>
-											<ToastDescription>Flag set to false</ToastDescription>
-										</Toast>
-									),
-								});
-								// Try navigating to onboarding directly for testing
-								router.replace("/onboarding");
-							}}
-							className="text-typography-500"
-						>
-							Dev: Reset onboarding
-						</Text>
+									await SecureStore.setItemAsync(
+										"onboarding_completed",
+										"false",
+									);
+									toast.show({
+										id: Math.random().toString(),
+										placement: "bottom",
+										duration: 1500,
+										render: ({ id }) => (
+											<Toast
+												nativeID={`toast-${id}`}
+												action="muted"
+												variant="solid"
+											>
+												<ToastTitle>Onboarding reset</ToastTitle>
+												<ToastDescription>Flag set to false</ToastDescription>
+											</Toast>
+										),
+									});
+									// Try navigating to onboarding directly for testing
+									router.replace("/onboarding");
+								}}
+								className="text-typography-500"
+							>
+								Dev: Reset onboarding
+							</Text>
 						</View>
 					</Animated.View>
 				</ScrollView>
