@@ -3,7 +3,7 @@ import { Image } from "expo-image";
 export default function BackgroundImage() {
 	return (
 		<Image
-			source={require("../assets/background.svg")}
+			source={require("../assets/background.png")}
 			style={{
 				position: "absolute",
 				left: 0,
