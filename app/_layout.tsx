@@ -1,9 +1,9 @@
 import { Image } from "expo-image";
 import { Stack } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
-import * as SecureStore from "expo-secure-store";
 
 import { authClient } from "@/lib/auth-client";
 
@@ -23,7 +23,9 @@ export default function RootLayout() {
 	const sessionState = authClient.useSession() as SessionState;
 	const session = sessionState?.data;
 	const isAuthenticated = !!session;
-	const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+	const [onboardingCompleted, setOnboardingCompleted] = useState<
+		boolean | null
+	>(null);
 	const isLoading = useMemo(
 		() =>
 			Boolean(
@@ -89,10 +91,14 @@ export default function RootLayout() {
 					<Stack.Screen name="(app)" />
 				</Stack.Protected>
 				{/* Unauthenticated: route to onboarding if not completed, otherwise to auth */}
-				<Stack.Protected guard={!isAuthenticated && onboardingCompleted === false}>
-					<Stack.Screen name="onboarding" />
+				<Stack.Protected
+					guard={!isAuthenticated && onboardingCompleted === false}
+				>
+					<Stack.Screen name="(onboarding)" />
 				</Stack.Protected>
-				<Stack.Protected guard={!isAuthenticated && onboardingCompleted === true}>
+				<Stack.Protected
+					guard={!isAuthenticated && onboardingCompleted === true}
+				>
 					<Stack.Screen name="(auth)" />
 				</Stack.Protected>
 			</Stack>
