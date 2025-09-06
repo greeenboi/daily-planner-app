@@ -14,7 +14,14 @@ export const auth = betterAuth({
 	},
 	plugins: [expo()],
 	socialProviders: {},
-	trustedOrigins: ["exp://", "withbetterauth://"],
+	trustedOrigins: [
+		"exp://",
+		"withbetterauth://",
+		"http://localhost:",
+		"http://127.0.0.1:",
+		"http://10.0.2.2:",
+		"http://192.168.", // local LAN dev ranges
+	],
 	logger: {
 		log: (level, message, ...args) => {
 			console.log(`${level}: ${message}`);

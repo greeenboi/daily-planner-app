@@ -6,12 +6,12 @@
       "dependencies": {
         "@better-auth/expo": "^1.3.7",
         "@expo/html-elements": "0.12.5",
-        "@expo/ui": "~0.1.1-alpha.10",
         "@expo/vector-icons": "^14.1.0",
         "@gluestack-ui/core": "3.0.0",
         "@gluestack-ui/utils": "3.0.0",
         "@legendapp/motion": "2.4.0",
         "@prisma/client": "^6.15.0",
+        "@react-native-community/datetimepicker": "8.4.1",
         "@react-navigation/native": "^7.1.6",
         "babel-plugin-module-resolver": "^5.0.2",
         "better-auth": "^1.3.7",
@@ -298,8 +298,6 @@
 
     "@expo/sudo-prompt": ["@expo/sudo-prompt@9.3.2", "", {}, "sha512-HHQigo3rQWKMDzYDLkubN5WQOYXJJE2eNqIQC2axC2iO3mHdwnIR7FgZVvHWtBwAdzBgAP0ECp8KqS8TiMKvgw=="],
 
-    "@expo/ui": ["@expo/ui@0.1.1-alpha.10", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-wop7IJKWwrupA2mhhgHF8fS51kA0X4oDWhDuXX611dbCf8kpsjQ4s1N/0NKCyOpB8EVUmlXx9sjleoL/E31i4Q=="],
-
     "@expo/vector-icons": ["@expo/vector-icons@14.1.0", "", { "peerDependencies": { "expo-font": "*", "react": "*", "react-native": "*" } }, "sha512-7T09UE9h8QDTsUeMGymB4i+iqvtEeaO5VvUjryFB4tugDTG/bkzViWA74hm5pfjjDEhYMXWaX112mcvhccmIwQ=="],
 
     "@expo/ws-tunnel": ["@expo/ws-tunnel@1.0.6", "", {}, "sha512-nDRbLmSrJar7abvUjp3smDwH8HcbZcoOEa5jVPUv9/9CajgmWw20JNRwTuBRzWIWIkEJDkz20GoNA+tSwUqk0Q=="],
@@ -517,6 +515,8 @@
     "@react-aria/utils": ["@react-aria/utils@3.30.1", "", { "dependencies": { "@react-aria/ssr": "^3.9.10", "@react-stately/flags": "^3.1.2", "@react-stately/utils": "^3.10.8", "@react-types/shared": "^3.32.0", "@swc/helpers": "^0.5.0", "clsx": "^2.0.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1", "react-dom": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1" } }, "sha512-zETcbDd6Vf9GbLndO6RiWJadIZsBU2MMm23rBACXLmpRztkrIqPEb2RVdlLaq1+GklDx0Ii6PfveVjx+8S5U6A=="],
 
     "@react-aria/visually-hidden": ["@react-aria/visually-hidden@3.8.27", "", { "dependencies": { "@react-aria/interactions": "^3.25.5", "@react-aria/utils": "^3.30.1", "@react-types/shared": "^3.32.0", "@swc/helpers": "^0.5.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1", "react-dom": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1" } }, "sha512-hD1DbL3WnjPnCdlQjwe19bQVRAGJyN0Aaup+s7NNtvZUn7AjoEH78jo8TE+L8yM7z/OZUQF26laCfYqeIwWn4g=="],
+
+    "@react-native-community/datetimepicker": ["@react-native-community/datetimepicker@8.4.1", "", { "dependencies": { "invariant": "^2.2.4" }, "peerDependencies": { "expo": ">=52.0.0", "react": "*", "react-native": "*", "react-native-windows": "*" }, "optionalPeers": ["expo", "react-native-windows"] }, "sha512-DrK+CUS5fZnz8dhzBezirkzQTcNDdaXer3oDLh0z4nc2tbdIdnzwvXCvi8IEOIvleoc9L95xS5tKUl0/Xv71Mg=="],
 
     "@react-native/assets-registry": ["@react-native/assets-registry@0.79.5", "", {}, "sha512-N4Kt1cKxO5zgM/BLiyzuuDNquZPiIgfktEQ6TqJ/4nKA8zr4e8KJgU6Tb2eleihDO4E24HmkvGc73naybKRz/w=="],
 
