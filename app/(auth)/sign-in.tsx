@@ -2,6 +2,8 @@ import { authClient } from "@/lib/auth-client";
 import { Link } from "expo-router";
 import React from "react";
 import { Animated, Easing, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { useRouter } from "expo-router";
 
 import BackgroundImage from "@/components/background-image";
 import { AlertIcon, AlertText, Alert as GSAlert } from "@/components/ui/alert";
@@ -34,6 +36,7 @@ import { VStack } from "@/components/ui/vstack";
 
 export default function SignIn() {
 	const toast = useToast();
+	const router = useRouter();
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [submitting, setSubmitting] = React.useState(false);
@@ -208,6 +211,30 @@ export default function SignIn() {
 						</Text>
 					</Card>
 					</VStack>
+						{/* Dev utility: reset onboarding flag */}
+						<View style={{ alignItems: "center", marginTop: 8 }}>
+							<Text
+								onPress={async () => {
+								await SecureStore.setItemAsync("onboarding_completed", "false");
+								toast.show({
+									id: Math.random().toString(),
+									placement: "bottom",
+									duration: 1500,
+									render: ({ id }) => (
+										<Toast nativeID={`toast-${id}`} action="muted" variant="solid">
+											<ToastTitle>Onboarding reset</ToastTitle>
+											<ToastDescription>Flag set to false</ToastDescription>
+										</Toast>
+									),
+								});
+								// Try navigating to onboarding directly for testing
+								router.replace("/onboarding");
+							}}
+							className="text-typography-500"
+						>
+							Dev: Reset onboarding
+						</Text>
+						</View>
 					</Animated.View>
 				</ScrollView>
 			</KeyboardAvoidingView>

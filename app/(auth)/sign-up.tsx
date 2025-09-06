@@ -2,6 +2,8 @@ import { authClient } from "@/lib/auth-client";
 import { Link } from "expo-router";
 import React from "react";
 import { Animated, Easing, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { useRouter } from "expo-router";
 
 import BackgroundImage from "@/components/background-image";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
@@ -33,6 +35,7 @@ import { VStack } from "@/components/ui/vstack";
 
 export default function SignUp() {
 	const toast = useToast();
+	const router = useRouter();
 	const [email, setEmail] = React.useState("");
 	const [name, setName] = React.useState("");
 	const [password, setPassword] = React.useState("");
@@ -227,6 +230,29 @@ export default function SignUp() {
 								<LinkText>Sign in</LinkText>
 							</Link>
 						</Text>
+						{/* Dev utility: reset onboarding flag */}
+						<View style={{ alignItems: "center", marginTop: 8 }}>
+							<Text
+								onPress={async () => {
+								await SecureStore.setItemAsync("onboarding_completed", "false");
+								toast.show({
+									id: Math.random().toString(),
+									placement: "bottom",
+									duration: 1500,
+									render: ({ id }) => (
+										<Toast nativeID={`toast-${id}`} action="muted" variant="solid">
+											<ToastTitle>Onboarding reset</ToastTitle>
+											<ToastDescription>Flag set to false</ToastDescription>
+										</Toast>
+									),
+								});
+								router.replace("/onboarding");
+							}}
+							className="text-typography-500"
+						>
+							Dev: Reset onboarding
+						</Text>
+						</View>
 					</Card>
 						</VStack>
 						</Animated.View>
