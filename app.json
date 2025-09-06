@@ -26,7 +26,7 @@
 		"androidNavigationBar": {
 			"barStyle": "light-content",
 			"backgroundColor": "#000000",
-			"visible": "sticky-immersive"
+			"visible": "immersive"
 		},
 		"developmentClient": {
 			"silentLaunch": true

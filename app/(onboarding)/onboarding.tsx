@@ -15,6 +15,7 @@ import { Image } from "@/components/ui/image";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { Image as ExpoImage } from "expo-image";
+import SlideAction from "@/components/slide-action-button";
 
 export default function Onboarding() {
 	const router = useRouter();
@@ -399,15 +400,19 @@ export default function Onboarding() {
 								})}
 							</View>
 							{last ? (
-								<Button
-									onPress={() => router.replace("/sign-up")}
-									variant="solid"
-									action="primary"
-									accessibilityLabel="Finish onboarding"
-									className="self-center mt-5 px-8 "
-								>
-									<ButtonText>Get Started</ButtonText>
-								</Button>
+								// <Button
+								// 	onPress={() => router.replace("/sign-up")}
+								// 	variant="solid"
+								// 	action="primary"
+								// 	accessibilityLabel="Finish onboarding"
+								// 	className="self-center mt-5 px-8 "
+								// >
+								// 	<ButtonText>Get Started</ButtonText>
+								// </Button>
+				<SlideAction
+				  label={"Slide to Get Started"}
+				  onConfirm={async () => router.replace("/sign-up")}
+				/>
 							) : (
 								<View
 									style={{
