@@ -13,7 +13,6 @@ import { Icon } from "@/components/ui/icon";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icon";
 import { Image } from "@/components/ui/image";
 import { Text } from "@/components/ui/text";
-import { useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 import { Image as ExpoImage } from "expo-image";
 
@@ -60,10 +59,7 @@ export default function Onboarding() {
 	const position = React.useRef(new Animated.Value(0)).current;
 
 	const voiceIntro1 = useAudioPlayer(
-		require("../../assets/voicelines/arabella-onboarding-part1.mp3"),
-	);
-	const voiceIntro2 = useAudioPlayer(
-		require("../../assets/voicelines/arabella-onboarding-part2.mp3"),
+		require("../../assets/voicelines/arabella-onboarding.mp3"),
 	);
 
 	const introProgress = React.useRef(new Animated.Value(0)).current;
@@ -75,52 +71,36 @@ export default function Onboarding() {
 	React.useEffect(() => {
 		if (!introDone) return;
 		let poll: NodeJS.Timeout | null = null;
-		let fallbackTimeout: NodeJS.Timeout | null = null;
-		let secondTimeout: NodeJS.Timeout | null = null;
 		let stopTimeout: NodeJS.Timeout | null = null;
-		function scheduleSecond() {
-			const part1DurMs = (voiceIntro1?.duration ?? 3.5) * 1000;
-			secondTimeout = setTimeout(
-				() => {
-					try {
-						voiceIntro2?.seekTo?.(0);
-						voiceIntro2?.play?.();
-					} catch {}
-					const part2DurMs = (voiceIntro2?.duration ?? 4) * 1000;
-					stopTimeout = setTimeout(
-						() => setIsAudioActive(false),
-						part2DurMs + 200,
-					);
-				},
-				Math.max(500, part1DurMs + 150),
-			);
-		}
 		try {
 			voiceIntro1?.seekTo?.(0);
 			voiceIntro1?.play?.();
 			setIsAudioActive(true);
 		} catch {}
+		function scheduleStop() {
+			const durMs = (voiceIntro1?.duration ?? 3.5) * 1000;
+			stopTimeout = setTimeout(() => setIsAudioActive(false), durMs + 150);
+		}
 		if (voiceIntro1?.duration) {
-			scheduleSecond();
+			scheduleStop();
 		} else {
 			poll = setInterval(() => {
 				if (voiceIntro1?.duration) {
 					if (poll) clearInterval(poll);
-					scheduleSecond();
+					scheduleStop();
 				}
-			}, 200);
-			fallbackTimeout = setTimeout(() => {
+			}, 180);
+			// Fallback in case duration never loads
+			stopTimeout = setTimeout(() => {
 				if (poll) clearInterval(poll);
-				scheduleSecond();
-			}, 1800);
+				setIsAudioActive(false);
+			}, 4000);
 		}
 		return () => {
 			if (poll) clearInterval(poll);
-			if (fallbackTimeout) clearTimeout(fallbackTimeout);
-			if (secondTimeout) clearTimeout(secondTimeout);
 			if (stopTimeout) clearTimeout(stopTimeout);
 		};
-	}, [introDone, voiceIntro1, voiceIntro2]);
+	}, [introDone, voiceIntro1]);
 
 	React.useEffect(() => {
 		Animated.timing(introProgress, {
@@ -132,7 +112,7 @@ export default function Onboarding() {
 			if (finished) setIntroDone(true);
 		});
 	}, [introProgress]);
-  
+
 	React.useEffect(() => {
 		if (!isAudioActive) return;
 		spinValue.setValue(0);
@@ -197,11 +177,6 @@ export default function Onboarding() {
 	const handlePrev = React.useCallback(() => {
 		setIndex((i) => Math.max(i - 1, 0));
 	}, []);
-
-	const resetOnboarding = async () => {
-		await SecureStore.setItemAsync("onboarding_completed", "false");
-		setIndex(0);
-	};
 
 	const panResponder = React.useRef(
 		PanResponder.create({
