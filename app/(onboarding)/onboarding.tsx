@@ -1,5 +1,5 @@
 import { useAudioPlayer } from "expo-audio";
-import { useRootNavigationState, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import React from "react";
 import { Animated, Dimensions, Easing, PanResponder, View } from "react-native";
@@ -180,10 +180,16 @@ export default function Onboarding() {
 		}).start();
 	}, [index, position]);
 
+	// Mark onboarding complete immediately on entering the page
+	React.useEffect(() => {
+		SecureStore.setItemAsync("onboarding_completed", "true").catch(() => {});
+	}, []);
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleNext = React.useCallback(() => {
 		if (last) {
-			router.replace("/(auth)/sign-up?fromOnboarding=1");
+			router.replace("/sign-up");
+			return;
 		}
 		setIndex((i) => Math.min(i + 1, slides.length - 1));
 	}, [last, slides.length]);
@@ -204,7 +210,7 @@ export default function Onboarding() {
 			onPanResponderRelease: (_, g) => {
 				if (g.dx < -40) {
 					if (last) {
-						router.replace("/(auth)/sign-up?fromOnboarding=1");
+						router.replace("/sign-up");
 					} else {
 						handleNext();
 					}
@@ -419,11 +425,7 @@ export default function Onboarding() {
 							</View>
 							{last ? (
 								<Button
-									onPress={() =>
-										router.replace({
-											pathname: "/(auth)/sign-up?fromOnboarding=1",
-										})
-									}
+									onPress={() => router.replace("/sign-up")}
 									variant="solid"
 									action="primary"
 									accessibilityLabel="Finish onboarding"

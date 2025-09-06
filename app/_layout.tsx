@@ -90,17 +90,12 @@ export default function RootLayout() {
 				<Stack.Protected guard={isAuthenticated}>
 					<Stack.Screen name="(app)" />
 				</Stack.Protected>
-				{/* Unauthenticated: route to onboarding if not completed, otherwise to auth */}
-				<Stack.Protected
-					guard={!isAuthenticated && onboardingCompleted === false}
-				>
-					<Stack.Screen name="(onboarding)" />
-				</Stack.Protected>
-				<Stack.Protected
-					guard={!isAuthenticated && onboardingCompleted === true}
-				>
+				<Stack.Protected guard={!isAuthenticated && onboardingCompleted === true}>
 					<Stack.Screen name="(auth)" />
 				</Stack.Protected>
+				{/* Unauthenticated: always allow auth routes; show onboarding group only if not completed */}
+				<Stack.Screen name="(onboarding)" />
+
 			</Stack>
 		</GluestackUIProvider>
 	);
