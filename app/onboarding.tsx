@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Animated, PanResponder, Easing, Dimensions } from "react-native";
+import { useAudioPlayer } from 'expo-audio';
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 
@@ -9,12 +10,11 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Icon } from "@/components/ui/icon";
 import { ChevronLeftIcon, ChevronRightIcon, ChevronsRightIcon } from "@/components/ui/icon";
-// Use platform-agnostic barrel imports so native builds don't try to render web <div> elements
 import { Card } from "@/components/ui/card";
 import { VStack } from "@/components/ui/vstack";
 import BackgroundImage from "@/components/background-image";
 import { Image } from "@/components/ui/image";
-import { Image as ExpoImage } from "expo-image"; // for svg splash icon
+import { Image as ExpoImage } from "expo-image";
 
 
 export default function Onboarding() {
@@ -56,25 +56,62 @@ export default function Onboarding() {
 
   const [index, setIndex] = React.useState(0);
   const last = index === slides.length - 1;
-  // Animated position representing fractional slide index
+  
   const position = React.useRef(new Animated.Value(0)).current;
-
-  // Intro animation values
-  const introProgress = React.useRef(new Animated.Value(0)).current; // 0 -> 1
+  
+  const voiceIntro1 = useAudioPlayer(require('../assets/voicelines/arabella-onboarding-part1.mp3'));
+  const voiceIntro2 = useAudioPlayer(require('../assets/voicelines/arabella-onboarding-part2.mp3'));
+  
+  const introProgress = React.useRef(new Animated.Value(0)).current;
   const spinValue = React.useRef(new Animated.Value(0)).current;
+  const pulseValue = React.useRef(new Animated.Value(0)).current;
   const [introDone, setIntroDone] = React.useState(false);
+  const [isAudioActive, setIsAudioActive] = React.useState(false);
+  React.useEffect(() => {
+    if (!introDone) return;
+    let poll: NodeJS.Timeout | null = null;
+    let fallbackTimeout: NodeJS.Timeout | null = null;
+    let secondTimeout: NodeJS.Timeout | null = null;
+    let stopTimeout: NodeJS.Timeout | null = null;
+    function scheduleSecond() {
+      const part1DurMs = (voiceIntro1?.duration ?? 3.5) * 1000;
+      secondTimeout = setTimeout(() => {
+        try {
+          voiceIntro2?.seekTo?.(0);
+          voiceIntro2?.play?.();
+        } catch {}
+        const part2DurMs = (voiceIntro2?.duration ?? 4) * 1000;
+        stopTimeout = setTimeout(() => setIsAudioActive(false), part2DurMs + 200);
+      }, Math.max(500, part1DurMs + 150));
+    }
+    try {
+      voiceIntro1?.seekTo?.(0);
+      voiceIntro1?.play?.();
+      setIsAudioActive(true);
+    } catch {}
+    if (voiceIntro1?.duration) {
+      scheduleSecond();
+    } else {
+      poll = setInterval(() => {
+        if (voiceIntro1?.duration) {
+          if (poll) clearInterval(poll);
+          scheduleSecond();
+        }
+      }, 200);
+      fallbackTimeout = setTimeout(() => {
+        if (poll) clearInterval(poll);
+        scheduleSecond();
+      }, 1800);
+    }
+    return () => {
+      if (poll) clearInterval(poll);
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
+      if (secondTimeout) clearTimeout(secondTimeout);
+      if (stopTimeout) clearTimeout(stopTimeout);
+    };
+  }, [introDone, voiceIntro1, voiceIntro2]);
 
   React.useEffect(() => {
-    // Spin forever
-    Animated.loop(
-      Animated.timing(spinValue, {
-        toValue: 1,
-        duration: 6000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    ).start();
-    // Intro translation + scale sequence
     Animated.timing(introProgress, {
       toValue: 1,
       duration: 1100,
@@ -83,13 +120,49 @@ export default function Onboarding() {
     }).start(({ finished }) => {
       if (finished) setIntroDone(true);
     });
-  }, [introProgress, spinValue]);
+  }, [introProgress]);
+  React.useEffect(() => {
+    if (!isAudioActive) return;
+    spinValue.setValue(0);
+    const spinLoop = Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 5000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    spinLoop.start();
+    return () => spinLoop.stop();
+  }, [isAudioActive, spinValue]);
 
-  // Animate position whenever index changes
+  React.useEffect(() => {
+    if (!isAudioActive) return;
+    pulseValue.setValue(0);
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseValue, {
+          toValue: 1,
+          duration: 900,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseValue, {
+          toValue: 0,
+          duration: 900,
+          easing: Easing.inOut(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [isAudioActive, pulseValue]);
+
   React.useEffect(() => {
     Animated.spring(position, {
       toValue: index,
-      useNativeDriver: false, // driving layout (left/width)
+  useNativeDriver: false,
       friction: 9,
       tension: 80,
     }).start();
@@ -117,7 +190,7 @@ export default function Onboarding() {
     setIndex(0);
   };
 
-  // Swipe gesture (horizontal)
+  
   const panResponder = React.useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 10 && Math.abs(g.dy) < 20,
@@ -130,18 +203,16 @@ export default function Onboarding() {
       },
     }),
   ).current;
-
-  // Interpolations for progress indicator (morphing dots)
+  
   const dotSize = 8;
-  const activeSize = 18; // width when mid-transition (stretch)
+  const activeSize = 18;
   const gap = 8;
   const outputRangeLeft = slides.map((_, i) => i * (dotSize + gap));
   const activeLeft = position.interpolate({
     inputRange: slides.map((_, i) => i),
     outputRange: outputRangeLeft,
   });
-
-  // Stretch effect during transition: use modulo of fractional part by diff to expand width
+  
   const stretchWidth = position.interpolate({
     inputRange: slides.flatMap((_, i) => [i - 0.499, i, i + 0.499]),
     outputRange: slides.flatMap(() => [dotSize, activeSize, dotSize]),
@@ -151,8 +222,8 @@ export default function Onboarding() {
   return (
     (() => {
       const screenW = Dimensions.get("window").width;
-      const startTop = 90; // initial top-center offset
-      const endMargin = 18; // final margin from top/right
+  const startTop = 90;
+  const endMargin = 18;
       const startSize = 140;
       const endSize = 48;
       const translateX = introProgress.interpolate({
@@ -171,6 +242,10 @@ export default function Onboarding() {
         inputRange: [0, 1],
         outputRange: ["0deg", "360deg"],
       });
+      const pulseScale = pulseValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 1.08],
+      });
 
       if (!introDone) {
         return (
@@ -184,7 +259,13 @@ export default function Onboarding() {
                   left: 0,
                   right: 0,
                   alignItems: "center",
-                  transform: [{ translateX }, { translateY }, { scale }, { rotate: spin }],
+                  transform: [
+                    { translateX },
+                    { translateY },
+                    { scale },
+                    { scale: isAudioActive ? pulseScale : 1 },
+                    { rotate: isAudioActive ? spin : '0deg' },
+                  ],
                 }}
               >
                 <ExpoImage
@@ -198,7 +279,6 @@ export default function Onboarding() {
         );
       }
 
-      // After intro: render full onboarding plus persistent spinning icon top-right
       return (
     <View style={{ flex: 1, backgroundColor: "#1E1E1E" }}>
       <BackgroundImage />
@@ -208,7 +288,10 @@ export default function Onboarding() {
           position: "absolute",
           top: endMargin,
           right: endMargin,
-          transform: [{ rotate: spin }],
+          transform: [
+            { scale: isAudioActive ? pulseScale : 1 },
+            { rotate: isAudioActive ? spin : '0deg' },
+          ],
         }}
       >
         <ExpoImage
@@ -217,7 +300,6 @@ export default function Onboarding() {
           contentFit="contain"
         />
       </Animated.View>
-      {/* Parallax / cross-fade illustration layer */}
       <Center pointerEvents="none" className="absolute left-0 right-0 top-0 bottom-0">
         <View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
           {slides.map((s, i) => {
@@ -226,7 +308,6 @@ export default function Onboarding() {
               outputRange: [0, 1, 0],
               extrapolate: 'clamp',
             });
-            // Parallax: slower horizontal, slight vertical rise
             const translateX = position.interpolate({
               inputRange: [i - 1, i, i + 1],
               outputRange: [70, 0, -70],
@@ -263,7 +344,6 @@ export default function Onboarding() {
           })}
         </View>
       </Center>
-      {/* Bottom anchored container */}
       <View
         style={{
           position: "absolute",
@@ -315,7 +395,6 @@ export default function Onboarding() {
               })}
             </View>
 
-            {/* Controls & Progress */}
             <View
               style={{
                 flexDirection: "row",
@@ -338,9 +417,7 @@ export default function Onboarding() {
                   />
                 </Button>
               </View>
-              {/* Progress dots with morphing active indicator */}
               <View style={{ position: 'relative', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}>
-                {/* Static dots */}
                 {slides.map((s, i) => (
                   <View
                     key={s.title}
@@ -354,7 +431,6 @@ export default function Onboarding() {
                     }}
                   />
                 ))}
-                {/* Active morphing indicator */}
                 <Animated.View
                   style={{
                     position: 'absolute',
@@ -366,7 +442,7 @@ export default function Onboarding() {
                       {
                         translateX: Animated.add(
                           activeLeft,
-                          new Animated.Value(0), // placeholder for potential offset adjustments
+                          new Animated.Value(0),
                         ),
                       },
                     ],
@@ -387,7 +463,6 @@ export default function Onboarding() {
               </View>
             </View>
 
-            {/* Dev reset */}
             <Button
               action="secondary"
               variant="outline"
