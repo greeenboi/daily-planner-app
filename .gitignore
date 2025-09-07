@@ -39,3 +39,5 @@ yarn-error.*
 # block stackblitz from commiting npm package lock
 
 package-lock.json
+
+*.sqlite
