@@ -20,6 +20,7 @@
 		"@gluestack-ui/core": "3.0.0",
 		"@gluestack-ui/utils": "3.0.0",
 		"@legendapp/motion": "2.4.0",
+		"@libsql/client": "^0.15.14",
 		"@prisma/adapter-libsql": "^6.15.0",
 		"@prisma/client": "^6.15.0",
 		"@react-native-community/datetimepicker": "8.4.1",
