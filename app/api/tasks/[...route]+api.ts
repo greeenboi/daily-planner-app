@@ -1,30 +1,34 @@
-import { PrismaClient, type ReminderMethod, type TaskPriority } from '@prisma/client';
+import { PrismaClient, type ReminderMethod, type TaskPriority, type User } from '@prisma/client';
 import { auth } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
-async function getSessionFromRequest(req: Request) {
+interface SimpleSession { user: User; session: { id: string; token: string } }
+
+async function getSessionFromRequest(req: Request): Promise<SimpleSession | undefined> {
   const headersObj: Record<string,string> = {};
   req.headers.forEach((v,k)=>{ headersObj[k]=v; });
   // eslint-disable-next-line no-console
   console.log('[tasks api] incoming headers', headersObj);
-  // Try bearer token first
+
   const authHeader = req.headers.get('authorization') || req.headers.get('Authorization');
-  if (authHeader?.toLowerCase().startsWith('bearer ')) {
-    const token = authHeader.slice(7).trim();
+  let bearerToken: string | undefined;
+  if (authHeader?.toLowerCase().startsWith('bearer ')) bearerToken = authHeader.slice(7).trim();
+
+  // Direct lookup in Session table for bearer token (faster / explicit) if present
+  if (bearerToken) {
     try {
-      // @ts-ignore: private API surface guess
-      if (auth?.api?.getSession) {
-        // @ts-ignore
-        const sess = await auth.api.getSession({ headers: req.headers, token });
-        if (sess?.user) return sess;
+      const sessionRow = await prisma.session.findUnique({ where: { token: bearerToken }, include: { user: true } });
+      if (sessionRow && sessionRow.expiresAt > new Date()) {
+  return { user: sessionRow.user, session: { id: sessionRow.id, token: sessionRow.token } };
       }
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.log('[tasks api] bearer getSession error', e);
+      console.log('[tasks api] direct token lookup error', e);
     }
   }
-  // Fallback: pass only headers (cookie based)
+
+  // Fallback to better-auth helper (cookie based)
   try {
     // @ts-ignore attempt better-auth session accessor
     if (auth?.api?.getSession) {
