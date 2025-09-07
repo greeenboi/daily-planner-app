@@ -1,3 +1,5 @@
+import { ChevronsRightIcon, Icon } from "@/components/ui/icon";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import {
 	type ReactNode,
 	useCallback,
@@ -5,7 +7,7 @@ import {
 	useReducer,
 	useRef,
 	useState,
-} from 'react';
+} from "react";
 import {
 	Animated,
 	Easing,
@@ -17,9 +19,7 @@ import {
 	Text,
 	View,
 	type ViewStyle,
-} from 'react-native';
-import { LinearGradient } from '@/components/ui/linear-gradient';
-import { Icon, ChevronsRightIcon } from '@/components/ui/icon';
+} from "react-native";
 
 export enum Status {
 	Initial = 1,
@@ -77,7 +77,7 @@ export default (props: Props) => {
 		onStatusChange,
 		height = 56,
 		knobSize = 52,
-		trackBackgroundColor = 'rgba(255,255,255,0.08)',
+		trackBackgroundColor = "rgba(255,255,255,0.08)",
 		disabled = false,
 	} = props;
 
@@ -207,7 +207,7 @@ export default (props: Props) => {
 	const interpolatedLabelOpacity = progress.interpolate({
 		inputRange: [0, 0.75, 1],
 		outputRange: [0.55, 0.85, 1],
-		extrapolate: 'clamp',
+		extrapolate: "clamp",
 	});
 
 	const shimmerTranslate = shimmerAnim.interpolate({
@@ -244,17 +244,17 @@ export default (props: Props) => {
 				{/* Active fill gradient */}
 				<Animated.View
 					style={{
-						position: 'absolute',
+						position: "absolute",
 						left: 0,
 						top: 0,
 						bottom: 0,
 						width: activeFillWidth,
 						borderRadius: height / 2,
-						overflow: 'hidden',
+						overflow: "hidden",
 					}}
 				>
 					<LinearGradient
-						colors={['rgba(134,55,207,0.55)', 'rgba(15,85,161,0.55)']}
+						colors={["rgba(134,55,207,0.55)", "rgba(15,85,161,0.55)"]}
 						start={[0, 0.5]}
 						end={[1, 0.5]}
 						className="w-full h-full opacity-60"
@@ -268,14 +268,14 @@ export default (props: Props) => {
 					) : (
 						<Animated.View style={{ opacity: interpolatedLabelOpacity }}>
 							<Text style={styles.labelText} numberOfLines={1}>
-								{label ?? 'Slide to Continue'}
+								{label ?? "Slide to Continue"}
 							</Text>
 							{/* Shimmer overlay */}
 							{state.status === Status.Initial && (
 								<Animated.View
 									pointerEvents="none"
 									style={{
-										position: 'absolute',
+										position: "absolute",
 										left: 0,
 										top: 0,
 										bottom: 0,
@@ -284,7 +284,11 @@ export default (props: Props) => {
 									}}
 								>
 									<LinearGradient
-										colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
+										colors={[
+											"rgba(255,255,255,0)",
+											"rgba(255,255,255,0.55)",
+											"rgba(255,255,255,0)",
+										]}
 										start={[0, 0.5]}
 										end={[1, 0.5]}
 										className="h-full w-full"
@@ -299,11 +303,11 @@ export default (props: Props) => {
 			{/* Knob */}
 			<Animated.View
 				accessibilityRole="button"
-				accessibilityLabel={label ?? 'Slide handle'}
+				accessibilityLabel={label ?? "Slide handle"}
 				style={{
-					position: 'absolute',
+					position: "absolute",
 					left: 0,
-					shadowColor: 'transparent',
+					shadowColor: "transparent",
 					top: (height - knobSize) / 2,
 					transform: [{ translateX: moveX }],
 				}}
@@ -322,9 +326,9 @@ export default (props: Props) => {
 							width: knobSize,
 							height: knobSize,
 							borderRadius: knobSize / 2,
-							alignItems: 'center',
-							justifyContent: 'center',
-							backgroundColor: 'transparent',
+							alignItems: "center",
+							justifyContent: "center",
+							backgroundColor: "transparent",
 						}}
 					>
 						<Icon as={ChevronsRightIcon} size="xl" className="text-white" />
@@ -337,26 +341,26 @@ export default (props: Props) => {
 
 const styles = StyleSheet.create({
 	container: {
-		width: '100%',
-		position: 'relative',
-		justifyContent: 'center',
+		width: "100%",
+		position: "relative",
+		justifyContent: "center",
 	},
 	track: {
-		width: '100%',
+		width: "100%",
 		borderWidth: 1,
-		borderColor: 'rgba(255,255,255,0.2)',
-		overflow: 'hidden',
+		borderColor: "rgba(255,255,255,0.2)",
+		overflow: "hidden",
 	},
 	centerContent: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
+		justifyContent: "center",
+		alignItems: "center",
 		paddingHorizontal: 28,
 	},
 	labelText: {
-		color: '#FFFFFF',
+		color: "#FFFFFF",
 		fontSize: 16,
-		fontWeight: '600',
+		fontWeight: "600",
 		letterSpacing: 0.4,
 	},
 });

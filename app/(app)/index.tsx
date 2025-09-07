@@ -352,7 +352,13 @@ export default function DailyPlannerPage() {
 	}
 
 	// Pre-compute layout for overlapping tasks (calendar-style column allocation)
-	interface LaidOutTask { task: PlannerTask; top: number; height: number; col: number; cols: number }
+	interface LaidOutTask {
+		task: PlannerTask;
+		top: number;
+		height: number;
+		col: number;
+		cols: number;
+	}
 	const laidOutTasks: LaidOutTask[] = useMemo(() => {
 		if (!tasks.length) return [];
 		// Prepare tasks with time metrics
@@ -365,7 +371,16 @@ export default function DailyPlannerPage() {
 			return { t, startMin, endMin };
 		});
 		enriched.sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
-		interface LayoutItem { t: PlannerTask; startMin: number; endMin: number; top: number; height: number; col: number; cols: number; clusterId: number }
+		interface LayoutItem {
+			t: PlannerTask;
+			startMin: number;
+			endMin: number;
+			top: number;
+			height: number;
+			col: number;
+			cols: number;
+			clusterId: number;
+		}
 		const laid: LayoutItem[] = [];
 		let cluster: typeof enriched = [];
 		let clusterMaxEnd = -1;
@@ -375,7 +390,8 @@ export default function DailyPlannerPage() {
 			// Column allocation inside cluster
 			// Greedy: assign first column whose latest end <= task.start; else new column
 			const colEnd: number[] = [];
-			const colAssignments: { col: number; item: typeof cluster[number] }[] = [];
+			const colAssignments: { col: number; item: (typeof cluster)[number] }[] =
+				[];
 			for (const item of cluster) {
 				let assigned = false;
 				for (let c = 0; c < colEnd.length; c++) {
@@ -426,7 +442,13 @@ export default function DailyPlannerPage() {
 			}
 		}
 		flushCluster();
-		return laid.map(l => ({ task: l.t, top: l.top, height: l.height, col: l.col, cols: l.cols }));
+		return laid.map((l) => ({
+			task: l.t,
+			top: l.top,
+			height: l.height,
+			col: l.col,
+			cols: l.cols,
+		}));
 	}, [tasks]);
 
 	return (
@@ -504,10 +526,19 @@ export default function DailyPlannerPage() {
 							<ScrollView
 								horizontal
 								showsHorizontalScrollIndicator={false}
-								contentContainerStyle={{ width: 54 + maxCols * (COL_WIDTH + GAP), height: timelineHeight }}
+								contentContainerStyle={{
+									width: 54 + maxCols * (COL_WIDTH + GAP),
+									height: timelineHeight,
+								}}
 								nestedScrollEnabled
 							>
-								<View className="relative" style={{ height: timelineHeight, width: 54 + maxCols * (COL_WIDTH + GAP) }}>
+								<View
+									className="relative"
+									style={{
+										height: timelineHeight,
+										width: 54 + maxCols * (COL_WIDTH + GAP),
+									}}
+								>
 									{/* Hour grid spanning full scroll width */}
 									{HOURS.map((h) => (
 										<View
@@ -523,14 +554,20 @@ export default function DailyPlannerPage() {
 											<Pressable
 												className="flex-1"
 												onPress={(e) => {
-													const y = (e.nativeEvent as { locationY?: number }).locationY ?? 0;
+													const y =
+														(e.nativeEvent as { locationY?: number })
+															.locationY ?? 0;
 													handleHourPress(h, y);
 												}}
 											/>
 										</View>
 									))}
 									{/* Tasks overlay */}
-									<View pointerEvents="box-none" className="absolute top-0" style={{ left: 54, right: 0, height: timelineHeight }}>
+									<View
+										pointerEvents="box-none"
+										className="absolute top-0"
+										style={{ left: 54, right: 0, height: timelineHeight }}
+									>
 										{laidOutTasks.map(({ task: t, top, height, col, cols }) => {
 											const start = new Date(t.start);
 											const end = new Date(t.end);
@@ -550,14 +587,28 @@ export default function DailyPlannerPage() {
 													}}
 													onPress={() => {
 														const day = selectedDate.toISOString().slice(0, 10);
-														router.push({ pathname: "/(app)/tasks", params: { date: day, taskId: t.id } });
+														router.push({
+															pathname: "/(app)/tasks",
+															params: { date: day, taskId: t.id },
+														});
 													}}
 												>
-													<Text numberOfLines={3} className="text-white text-[13px] font-semibold">
+													<Text
+														numberOfLines={3}
+														className="text-white text-[13px] font-semibold"
+													>
 														{t.title}
 													</Text>
 													<Text className="text-[#cbd5e1] text-[10px]">
-														{start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+														{start.toLocaleTimeString([], {
+															hour: "2-digit",
+															minute: "2-digit",
+														})}{" "}
+														-{" "}
+														{end.toLocaleTimeString([], {
+															hour: "2-digit",
+															minute: "2-digit",
+														})}
 													</Text>
 												</Pressable>
 											);

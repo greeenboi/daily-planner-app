@@ -358,75 +358,111 @@ export default function TasksListPage() {
 						</Text>
 					</View>
 				)}
-					{overlappingGroups.map((group) => {
-						if (group.length === 1) {
-							const t = group[0];
-							const start = new Date(t.start);
-							const end = new Date(t.end);
-							const timeStr = `${start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - ${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-							const isFocused = highlightId === t.id;
-							return (
-								<View
-									key={t.id}
-									className={`p-3 rounded-[14px] flex-row items-start gap-3 ${isFocused ? "bg-[#1e3a8a]" : "bg-[#162028]"}`}
-									style={
-										isFocused
-											? { shadowColor: "#2563eb", shadowOpacity: 0.6, shadowRadius: 6 }
-											: undefined
-									}
-								>
-									<Pressable
-										className="w-6 h-6 rounded-md border border-[#2563eb] items-center justify-center mr-1"
-										onPress={() => toggleComplete(t.id)}
-									>
-										<Icon as={CheckIcon} width={14} height={14} className="opacity-60" />
-									</Pressable>
-									<Pressable className="flex-1 gap-1" onPress={() => openTaskSheet(t.id)}>
-										<Text className="text-white text-[15px] font-semibold">{t.title}</Text>
-										<Text className="text-[#cbd5e1] text-[11px]">{timeStr}</Text>
-									</Pressable>
-									<Pressable onPress={() => deleteTask(t.id)} className="px-2 py-1">
-										<Icon as={TrashIcon} width={16} height={16} />
-									</Pressable>
-								</View>
-							);
-						}
+				{overlappingGroups.map((group) => {
+					if (group.length === 1) {
+						const t = group[0];
+						const start = new Date(t.start);
+						const end = new Date(t.end);
+						const timeStr = `${start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - ${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+						const isFocused = highlightId === t.id;
 						return (
-							<HStack key={group.map((t) => t.id).join('-')} className="gap-3">
-								{group.map((t) => {
-									const start = new Date(t.start);
-									const end = new Date(t.end);
-									const timeStr = `${start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - ${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
-									const isFocused = highlightId === t.id;
-									return (
-										<View
-											key={t.id}
-											className={`flex-1 p-3 rounded-[14px] flex-row items-start gap-3 ${isFocused ? "bg-[#1e3a8a]" : "bg-[#162028]"}`}
-											style={
-												isFocused
-													? { shadowColor: "#2563eb", shadowOpacity: 0.6, shadowRadius: 6 }
-												: undefined
+							<View
+								key={t.id}
+								className={`p-3 rounded-[14px] flex-row items-start gap-3 ${isFocused ? "bg-[#1e3a8a]" : "bg-[#162028]"}`}
+								style={
+									isFocused
+										? {
+												shadowColor: "#2563eb",
+												shadowOpacity: 0.6,
+												shadowRadius: 6,
 											}
-										>
-											<Pressable
-												className="w-6 h-6 rounded-md border border-[#2563eb] items-center justify-center mr-1"
-												onPress={() => toggleComplete(t.id)}
-											>
-												<Icon as={CheckIcon} width={14} height={14} className="opacity-60" />
-											</Pressable>
-											<Pressable className="flex-1 gap-1" onPress={() => openTaskSheet(t.id)}>
-												<Text className="text-white text-[15px] font-semibold">{t.title}</Text>
-												<Text className="text-[#cbd5e1] text-[11px]">{timeStr}</Text>
-											</Pressable>
-											<Pressable onPress={() => deleteTask(t.id)} className="px-2 py-1">
-												<Icon as={TrashIcon} width={16} height={16} />
-											</Pressable>
-										</View>
-									);
-								})}
-							</HStack>
+										: undefined
+								}
+							>
+								<Pressable
+									className="w-6 h-6 rounded-md border border-[#2563eb] items-center justify-center mr-1"
+									onPress={() => toggleComplete(t.id)}
+								>
+									<Icon
+										as={CheckIcon}
+										width={14}
+										height={14}
+										className="opacity-60"
+									/>
+								</Pressable>
+								<Pressable
+									className="flex-1 gap-1"
+									onPress={() => openTaskSheet(t.id)}
+								>
+									<Text className="text-white text-[15px] font-semibold">
+										{t.title}
+									</Text>
+									<Text className="text-[#cbd5e1] text-[11px]">{timeStr}</Text>
+								</Pressable>
+								<Pressable
+									onPress={() => deleteTask(t.id)}
+									className="px-2 py-1"
+								>
+									<Icon as={TrashIcon} width={16} height={16} />
+								</Pressable>
+							</View>
 						);
-					})}
+					}
+					return (
+						<HStack key={group.map((t) => t.id).join("-")} className="gap-3">
+							{group.map((t) => {
+								const start = new Date(t.start);
+								const end = new Date(t.end);
+								const timeStr = `${start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - ${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+								const isFocused = highlightId === t.id;
+								return (
+									<View
+										key={t.id}
+										className={`flex-1 p-3 rounded-[14px] flex-row items-start gap-3 ${isFocused ? "bg-[#1e3a8a]" : "bg-[#162028]"}`}
+										style={
+											isFocused
+												? {
+														shadowColor: "#2563eb",
+														shadowOpacity: 0.6,
+														shadowRadius: 6,
+													}
+												: undefined
+										}
+									>
+										<Pressable
+											className="w-6 h-6 rounded-md border border-[#2563eb] items-center justify-center mr-1"
+											onPress={() => toggleComplete(t.id)}
+										>
+											<Icon
+												as={CheckIcon}
+												width={14}
+												height={14}
+												className="opacity-60"
+											/>
+										</Pressable>
+										<Pressable
+											className="flex-1 gap-1"
+											onPress={() => openTaskSheet(t.id)}
+										>
+											<Text className="text-white text-[15px] font-semibold">
+												{t.title}
+											</Text>
+											<Text className="text-[#cbd5e1] text-[11px]">
+												{timeStr}
+											</Text>
+										</Pressable>
+										<Pressable
+											onPress={() => deleteTask(t.id)}
+											className="px-2 py-1"
+										>
+											<Icon as={TrashIcon} width={16} height={16} />
+										</Pressable>
+									</View>
+								);
+							})}
+						</HStack>
+					);
+				})}
 			</ScrollView>
 
 			{/* Floating create button */}
