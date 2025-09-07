@@ -84,17 +84,40 @@ export default function SignUp() {
 
 	const handleSignUp = async () => {
 		setError(null);
+		console.info("[auth] signUp invoked", { email, name });
 		if (!isEmailValid || !isPasswordValid || !isNameValid) {
+			console.info("[auth] signUp validation_failed", {
+				email,
+				nameLength: name.length,
+				isEmailValid,
+				isPasswordValid,
+				isNameValid,
+			});
 			setError("Please fill all fields correctly.");
 			return;
 		}
 		setSubmitting(true);
+		const started = Date.now();
 		try {
+			console.info("[auth] signUp request_start", { email });
 			const res = await authClient.signUp.email({ email, password, name });
+			const duration = Date.now() - started;
 			if (res.error) {
+				console.info("[auth] signUp error", {
+					email,
+					name,
+					durationMs: duration,
+					message: res.error.message,
+				});
 				setError(res.error.message || "signup handler error");
 				return;
 			}
+			console.info("[auth] signUp success", {
+				email,
+				name,
+				durationMs: duration,
+				user: typeof res === "object" && res && "data" in res && (res as { data?: { user?: { id?: string } } }).data?.user?.id,
+			});
 			const id = Math.random().toString();
 			toast.show({
 				id,
@@ -107,6 +130,11 @@ export default function SignUp() {
 					</Toast>
 				),
 			});
+		} catch (e: unknown) {
+			const duration = Date.now() - started;
+			const message = e instanceof Error ? e.message : String(e);
+			console.info("[auth] signUp exception", { email, name, durationMs: duration, message });
+			throw e;
 		} finally {
 			setSubmitting(false);
 		}

@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./database.sqlite"
+  // Local file used only for generating migrations; ignored at runtime when LibSQL adapter is active.
+  url      = "file:./dev.db"
 }
 
 model User {

@@ -71,17 +71,37 @@ export default function SignIn() {
 
 	const handleLogin = async () => {
 		setError(null);
+		console.info("[auth] signIn invoked", { email });
 		if (!isEmailValid || !isPasswordValid) {
+			console.info("[auth] signIn validation_failed", {
+				email,
+				isEmailValid,
+				isPasswordValid,
+			});
 			setError("Enter a valid email and password (min 6 chars).");
 			return;
 		}
 		setSubmitting(true);
+		const started = Date.now();
 		try {
+			console.info("[auth] signIn request_start", { email });
 			const res = await authClient.signIn.email({ email, password });
+			const duration = Date.now() - started;
 			if (res.error) {
+				console.info("[auth] signIn error", {
+					email,
+					durationMs: duration,
+					message: res.error.message,
+				});
 				setError(res.error.message || "signin handler error");
 				return;
 			}
+			console.info("[auth] signIn success", {
+				email,
+				durationMs: duration,
+				// Safely access user id without using any
+				user: typeof res === "object" && res && "data" in res && (res as { data?: { user?: { id?: string } } }).data?.user?.id,
+			});
 			const id = Math.random().toString();
 			toast.show({
 				id,
@@ -94,6 +114,11 @@ export default function SignIn() {
 					</Toast>
 				),
 			});
+		} catch (e: unknown) {
+			const duration = Date.now() - started;
+			const message = e instanceof Error ? e.message : String(e);
+			console.info("[auth] signIn exception", { email, durationMs: duration, message });
+			throw e;
 		} finally {
 			setSubmitting(false);
 		}
