@@ -20,16 +20,7 @@ import { Text as GSText } from '@/components/ui/text';
 import { CalendarDaysIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon, AddIcon, Icon } from '@/components/ui/icon';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-
-interface PlannerTask {
-	id: string;
-	title: string;
-	start: string; // ISO
-	end: string;   // ISO
-	color?: string | null;
-	allDay?: boolean;
-	priority?: string;
-}
+import type { PlannerTask } from '@/lib/types/task-planner';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const HOUR_HEIGHT = 80; // px per hour for vertical timeline
