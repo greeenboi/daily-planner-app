@@ -70,6 +70,9 @@
       "eas": {
         "projectId": "887bc862-9997-4b70-b2d3-a1b1f285ac3f"
       }
+    },
+    "android": {
+      "package": "com.greenarcade.easeindailyplanner"
     }
   }
 }
