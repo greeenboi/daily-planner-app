@@ -255,7 +255,7 @@ export default function SignUp() {
 									</Link>
 								</Text>
 								{/* Dev utility: reset onboarding flag */}
-								<View style={{ alignItems: "center", marginTop: 8 }}>
+								{/* <View style={{ alignItems: "center", marginTop: 8 }}>
 									<Text
 										onPress={async () => {
 											await SecureStore.setItemAsync(
@@ -285,7 +285,7 @@ export default function SignUp() {
 									>
 										Dev: Reset onboarding
 									</Text>
-								</View>
+								</View> */}
 							</Card>
 						</VStack>
 					</Animated.View>

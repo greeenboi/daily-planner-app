@@ -1,7 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { Link } from "expo-router";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+// import * as SecureStore from "expo-secure-store";
 import React from "react";
 import {
 	Animated,
@@ -227,7 +227,7 @@ export default function SignIn() {
 							</Card>
 						</VStack>
 						{/* Dev utility: reset onboarding flag */}
-						<View style={{ alignItems: "center", marginTop: 8 }}>
+						{/* <View style={{ alignItems: "center", marginTop: 8 }}>
 							<Text
 								onPress={async () => {
 									await SecureStore.setItemAsync(
@@ -256,7 +256,7 @@ export default function SignIn() {
 							>
 								Dev: Reset onboarding
 							</Text>
-						</View>
+						</View> */}
 					</Animated.View>
 				</ScrollView>
 			</KeyboardAvoidingView>
