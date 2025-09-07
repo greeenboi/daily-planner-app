@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useRouter } from 'expo-router';
 import { View, ScrollView, Text, Pressable, Platform } from 'react-native';
 import { authClient } from '@/lib/auth-client';
 import { VStack } from '@/components/ui/vstack';
@@ -34,6 +35,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const HOUR_HEIGHT = 80; // px per hour for vertical timeline
 
 export default function DailyPlannerPage() {
+	const router = useRouter();
 	const { data: session } = authClient.useSession();
 	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 	const [tasks, setTasks] = useState<PlannerTask[]>([]);
@@ -324,7 +326,15 @@ export default function DailyPlannerPage() {
 							const top = (startMin / 60) * HOUR_HEIGHT;
 							const height = ((endMin - startMin) / 60) * HOUR_HEIGHT;
 							return (
-								<Pressable key={t.id} className="absolute rounded-[10px] p-2 border-l-4 gap-1" style={{ top, height, backgroundColor: t.color || '#2563eb22', borderLeftColor: t.color || '#2563eb', minHeight: 30 }}>
+								<Pressable
+									key={t.id}
+									className="absolute rounded-[10px] p-2 border-l-4 gap-1"
+									style={{ top, height, backgroundColor: t.color || '#2563eb22', borderLeftColor: t.color || '#2563eb', minHeight: 30 }}
+									onPress={() => {
+										const day = selectedDate.toISOString().slice(0,10);
+										router.push({ pathname: '/(app)/tasks', params: { date: day, taskId: t.id } });
+									}}
+								>
 									<Text numberOfLines={3} className="text-white text-[13px] font-semibold">{t.title}</Text>
 									<Text className="text-[#cbd5e1] text-[10px]">
 										{start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
