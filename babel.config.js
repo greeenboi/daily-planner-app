@@ -12,7 +12,7 @@ module.exports = function (api) {
       'nativewind/babel',
     ],
 
-    plugins: [
+  plugins: [
       [
         'module-resolver',
         {
@@ -23,7 +23,9 @@ module.exports = function (api) {
             'tailwind.config': './tailwind.config.js',
           },
         },
-      ],
+    ],
+    // Reanimated plugin must be listed last
+    'react-native-reanimated/plugin',
   'react-native-worklets/plugin',
     ],
   };

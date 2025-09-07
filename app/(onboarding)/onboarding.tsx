@@ -5,6 +5,7 @@ import React from "react";
 import { Animated, Dimensions, Easing, PanResponder, View } from "react-native";
 
 import BackgroundImage from "@/components/background-image";
+import SlideAction from "@/components/slide-action-button";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Center } from "@/components/ui/center";
@@ -15,7 +16,6 @@ import { Image } from "@/components/ui/image";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { Image as ExpoImage } from "expo-image";
-import SlideAction from "@/components/slide-action-button";
 
 export default function Onboarding() {
 	const router = useRouter();
@@ -409,10 +409,10 @@ export default function Onboarding() {
 								// >
 								// 	<ButtonText>Get Started</ButtonText>
 								// </Button>
-				<SlideAction
-				  label={"Slide to Get Started"}
-				  onConfirm={async () => router.replace("/sign-up")}
-				/>
+								<SlideAction
+									label={"Slide to Get Started"}
+									onConfirm={async () => router.replace("/sign-up")}
+								/>
 							) : (
 								<View
 									style={{
