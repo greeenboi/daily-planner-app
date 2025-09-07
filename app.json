@@ -3,7 +3,7 @@
     "name": "EaseIn Daily Planner",
     "description": "A focused daily planner to schedule tasks, track habits, and stay organized.",
     "slug": "easein-daily-planner",
-    "owner": "greeenboi",
+    "owner": "greenarcade",
     "githubUrl": "https://github.com/greeenboi/daily-planner-app",
     "version": "1.0.0",
     "runtimeVersion": {
@@ -31,7 +31,8 @@
     "androidStatusBar": {
       "barStyle": "dark-content",
       "hidden": false,
-      "translucent": true
+      "translucent": true,
+      "backgroundColor": "#7265E2"
     },
     "androidNavigationBar": {
       "barStyle": "light-content",
@@ -64,6 +65,11 @@
       ],
       "expo-audio",
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "887bc862-9997-4b70-b2d3-a1b1f285ac3f"
+      }
+    }
   }
 }
