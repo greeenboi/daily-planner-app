@@ -3,10 +3,13 @@
 		"name": "EaseIn Daily Planner",
 		"description": "A focused daily planner to schedule tasks, track habits, and stay organized.",
 		"slug": "easein-daily-planner",
+		"owner": "greeenboi",
+		"githubUrl": "https://github.com/greeenboi/daily-planner-app",
 		"version": "1.0.0",
 		"runtimeVersion": {
 			"policy": "appVersion"
 		},
+		"icon": "./assets/icon.png",
 		"platforms": ["ios", "android", "web"],
 		"orientation": "portrait",
 		"userInterfaceStyle": "dark",
@@ -44,9 +47,9 @@
 				"expo-splash-screen",
 				{
 					"backgroundColor": "#7265E2",
-					"image": "./assets/splash-icon.svg",
+					"image": "./assets/icon.png",
 					"dark": {
-						"image": "./assets/splash-icon.svg",
+						"image": "./assets/icon.png",
 						"backgroundColor": "#7265E2"
 					},
 					"imageWidth": 80
