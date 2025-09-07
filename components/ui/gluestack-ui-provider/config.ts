@@ -104,18 +104,18 @@ export const config = {
 
 		/* Typography */
 		// Typography for light mode (Dark text: #1E1E1E -> 30 30 30)
-		"--color-typography-0": "30 30 30",
-		"--color-typography-50": "30 30 30",
-		"--color-typography-100": "30 30 30",
-		"--color-typography-200": "30 30 30",
-		"--color-typography-300": "30 30 30",
-		"--color-typography-400": "30 30 30",
-		"--color-typography-500": "30 30 30",
-		"--color-typography-600": "30 30 30",
-		"--color-typography-700": "30 30 30",
-		"--color-typography-800": "30 30 30",
-		"--color-typography-900": "30 30 30",
-		"--color-typography-950": "30 30 30",
+		"--color-typography-0": "23 23 23",
+		"--color-typography-50": "38 38 39",
+		"--color-typography-100": "64 64 64",
+		"--color-typography-200": "82 82 82",
+		"--color-typography-300": "115 115 115",
+		"--color-typography-400": "140 140 140",
+		"--color-typography-500": "163 163 163",
+		"--color-typography-600": "212 212 212",
+		"--color-typography-700": "219 219 220",
+		"--color-typography-800": "229 229 229",
+		"--color-typography-900": "245 245 245",
+		"--color-typography-950": "254 254 255",
 
 		/* Outline */
 		"--color-outline-0": "253 254 254",
