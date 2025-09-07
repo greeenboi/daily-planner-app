@@ -1,7 +1,5 @@
 import { authClient } from "@/lib/auth-client";
 import { Link } from "expo-router";
-import { useRouter } from "expo-router";
-// import * as SecureStore from "expo-secure-store";
 import React from "react";
 import {
 	Animated,
@@ -43,7 +41,6 @@ import { VStack } from "@/components/ui/vstack";
 
 export default function SignIn() {
 	const toast = useToast();
-	const router = useRouter();
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [submitting, setSubmitting] = React.useState(false);
@@ -156,7 +153,9 @@ export default function SignIn() {
 											value={email}
 											onChangeText={setEmail}
 											inputMode="email"
+											className="text-typography-300"
 											autoCapitalize="none"
+											placeholderTextColor="#525252"
 										/>
 									</Input>
 									<FormControlHelper>
@@ -183,6 +182,7 @@ export default function SignIn() {
 											placeholder="••••••"
 											value={password}
 											onChangeText={setPassword}
+											placeholderTextColor="#525252"
 											secureTextEntry
 										/>
 									</Input>
