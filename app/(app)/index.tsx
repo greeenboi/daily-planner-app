@@ -351,6 +351,84 @@ export default function DailyPlannerPage() {
 		}
 	}
 
+	// Pre-compute layout for overlapping tasks (calendar-style column allocation)
+	interface LaidOutTask { task: PlannerTask; top: number; height: number; col: number; cols: number }
+	const laidOutTasks: LaidOutTask[] = useMemo(() => {
+		if (!tasks.length) return [];
+		// Prepare tasks with time metrics
+		const enriched = tasks.map((t) => {
+			const start = new Date(t.start);
+			const end = new Date(t.end);
+			const startMin = start.getHours() * 60 + start.getMinutes();
+			const endMinRaw = end.getHours() * 60 + end.getMinutes();
+			const endMin = Math.max(startMin + 15, endMinRaw); // enforce min duration
+			return { t, startMin, endMin };
+		});
+		enriched.sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
+		interface LayoutItem { t: PlannerTask; startMin: number; endMin: number; top: number; height: number; col: number; cols: number; clusterId: number }
+		const laid: LayoutItem[] = [];
+		let cluster: typeof enriched = [];
+		let clusterMaxEnd = -1;
+		let clusterId = 0;
+		function flushCluster() {
+			if (!cluster.length) return;
+			// Column allocation inside cluster
+			// Greedy: assign first column whose latest end <= task.start; else new column
+			const colEnd: number[] = [];
+			const colAssignments: { col: number; item: typeof cluster[number] }[] = [];
+			for (const item of cluster) {
+				let assigned = false;
+				for (let c = 0; c < colEnd.length; c++) {
+					if (item.startMin >= colEnd[c]) {
+						colEnd[c] = item.endMin;
+						colAssignments.push({ col: c, item });
+						assigned = true;
+						break;
+					}
+				}
+				if (!assigned) {
+					colEnd.push(item.endMin);
+					colAssignments.push({ col: colEnd.length - 1, item });
+				}
+			}
+			const totalCols = colEnd.length;
+			for (const { col, item } of colAssignments) {
+				const top = (item.startMin / 60) * HOUR_HEIGHT;
+				const height = ((item.endMin - item.startMin) / 60) * HOUR_HEIGHT;
+				laid.push({
+					clusterId,
+					col,
+					cols: totalCols,
+					t: item.t,
+					startMin: item.startMin,
+					endMin: item.endMin,
+					top,
+					height,
+				});
+			}
+			clusterId++;
+			cluster = [];
+			clusterMaxEnd = -1;
+		}
+		for (const item of enriched) {
+			if (!cluster.length) {
+				cluster.push(item);
+				clusterMaxEnd = item.endMin;
+				continue;
+			}
+			if (item.startMin < clusterMaxEnd) {
+				cluster.push(item);
+				if (item.endMin > clusterMaxEnd) clusterMaxEnd = item.endMin;
+			} else {
+				flushCluster();
+				cluster.push(item);
+				clusterMaxEnd = item.endMin;
+			}
+		}
+		flushCluster();
+		return laid.map(l => ({ task: l.t, top: l.top, height: l.height, col: l.col, cols: l.cols }));
+	}, [tasks]);
+
 	return (
 		<View className="flex-1 bg-[#0c0f14]">
 			<HStack className="pt-[52px] px-4 items-center">
@@ -416,83 +494,80 @@ export default function DailyPlannerPage() {
 			</View>
 
 			<ScrollView ref={scrollRef} contentContainerClassName="pb-[120px]">
-				<View className="relative" style={{ height: 24 * HOUR_HEIGHT }}>
-					{/* Hour grid */}
-					{HOURS.map((h) => (
-						<View
-							key={h}
-							style={{ top: h * HOUR_HEIGHT, height: HOUR_HEIGHT }}
-							className="absolute left-0 right-0 flex-row border-b border-[#262b33]"
-						>
-							<View className="w-[54px] items-end pr-2 pt-[6px]">
-								<Text className="text-[#64748b] text-[11px]">
-									{h.toString().padStart(2, "0")}:00
-								</Text>
-							</View>
-							<Pressable
-								className="flex-1"
-								onPress={(e) => {
-									const y =
-										(e.nativeEvent as { locationY?: number }).locationY ?? 0;
-									handleHourPress(h, y);
-								}}
-							/>
-						</View>
-					))}
-					{/* Task blocks spanning hours */}
-					<View
-						pointerEvents="box-none"
-						className="absolute left-[54px] right-2 top-0"
-					>
-						{tasks.map((t) => {
-							const start = new Date(t.start);
-							const end = new Date(t.end);
-							const startMin = start.getHours() * 60 + start.getMinutes();
-							const endMinRaw = end.getHours() * 60 + end.getMinutes();
-							const endMin = Math.max(startMin + 15, endMinRaw); // enforce minimum 15m duration
-							const top = (startMin / 60) * HOUR_HEIGHT;
-							const height = ((endMin - startMin) / 60) * HOUR_HEIGHT;
-							return (
-								<Pressable
-									key={t.id}
-									className="absolute rounded-[10px] p-2 border-l-4 gap-1"
-									style={{
-										top,
-										height,
-										backgroundColor: t.color || "#2563eb22",
-										borderLeftColor: t.color || "#2563eb",
-										minHeight: 30,
-									}}
-									onPress={() => {
-										const day = selectedDate.toISOString().slice(0, 10);
-										router.push({
-											pathname: "/(app)/tasks",
-											params: { date: day, taskId: t.id },
-										});
-									}}
-								>
-									<Text
-										numberOfLines={3}
-										className="text-white text-[13px] font-semibold"
-									>
-										{t.title}
-									</Text>
-									<Text className="text-[#cbd5e1] text-[10px]">
-										{start.toLocaleTimeString([], {
-											hour: "2-digit",
-											minute: "2-digit",
-										})}{" "}
-										-{" "}
-										{end.toLocaleTimeString([], {
-											hour: "2-digit",
-											minute: "2-digit",
+				{(() => {
+					const maxCols = laidOutTasks.reduce((m, x) => Math.max(m, x.cols), 1);
+					const COL_WIDTH = 120; // px per overlap column
+					const GAP = 6; // horizontal gap between columns
+					const timelineHeight = 24 * HOUR_HEIGHT;
+					return (
+						<View style={{ height: timelineHeight }}>
+							<ScrollView
+								horizontal
+								showsHorizontalScrollIndicator={false}
+								contentContainerStyle={{ width: 54 + maxCols * (COL_WIDTH + GAP), height: timelineHeight }}
+								nestedScrollEnabled
+							>
+								<View className="relative" style={{ height: timelineHeight, width: 54 + maxCols * (COL_WIDTH + GAP) }}>
+									{/* Hour grid spanning full scroll width */}
+									{HOURS.map((h) => (
+										<View
+											key={h}
+											style={{ top: h * HOUR_HEIGHT, height: HOUR_HEIGHT }}
+											className="absolute left-0 right-0 flex-row border-b border-[#262b33]"
+										>
+											<View className="w-[54px] items-end pr-2 pt-[6px]">
+												<Text className="text-[#64748b] text-[11px]">
+													{h.toString().padStart(2, "0")}:00
+												</Text>
+											</View>
+											<Pressable
+												className="flex-1"
+												onPress={(e) => {
+													const y = (e.nativeEvent as { locationY?: number }).locationY ?? 0;
+													handleHourPress(h, y);
+												}}
+											/>
+										</View>
+									))}
+									{/* Tasks overlay */}
+									<View pointerEvents="box-none" className="absolute top-0" style={{ left: 54, right: 0, height: timelineHeight }}>
+										{laidOutTasks.map(({ task: t, top, height, col, cols }) => {
+											const start = new Date(t.start);
+											const end = new Date(t.end);
+											const left = col * (COL_WIDTH + GAP);
+											return (
+												<Pressable
+													key={t.id}
+													className="absolute rounded-[10px] p-2 border-l-4 gap-1 overflow-hidden"
+													style={{
+														top,
+														height,
+														left,
+														width: COL_WIDTH,
+														backgroundColor: t.color || "#7265E222",
+														borderLeftColor: t.color || "#7265E2",
+														minHeight: 30,
+													}}
+													onPress={() => {
+														const day = selectedDate.toISOString().slice(0, 10);
+														router.push({ pathname: "/(app)/tasks", params: { date: day, taskId: t.id } });
+													}}
+												>
+													<Text numberOfLines={3} className="text-white text-[13px] font-semibold">
+														{t.title}
+													</Text>
+													<Text className="text-[#cbd5e1] text-[10px]">
+														{start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - {end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+													</Text>
+												</Pressable>
+											);
 										})}
-									</Text>
-								</Pressable>
-							);
-						})}
-					</View>
-				</View>
+									</View>
+								</View>
+							</ScrollView>
+						</View>
+					);
+				})()}
 			</ScrollView>
 
 			<Pressable
