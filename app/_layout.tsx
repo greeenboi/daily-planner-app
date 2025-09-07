@@ -8,9 +8,9 @@ import { View } from "react-native";
 import { authClient } from "@/lib/auth-client";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import "@/global.css";
 import type { SessionState } from "@/lib/types/session-state";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Keep the native/web splash screen visible until auth state is resolved
 void SplashScreen.preventAutoHideAsync();
@@ -87,20 +87,18 @@ export default function RootLayout() {
 
 	return (
 		<GluestackUIProvider mode="dark">
-			<GestureHandlerRootView >
-				<Stack screenOptions={{ headerShown: false }}>
-					<Stack.Protected guard={isAuthenticated}>
-						<Stack.Screen name="(app)" />
-					</Stack.Protected>
-					<Stack.Protected
-						guard={!isAuthenticated && onboardingCompleted === true}
-					>
-						<Stack.Screen name="(auth)" />
-					</Stack.Protected>
-					{/* Unauthenticated: always allow auth routes; show onboarding group only if not completed */}
-					<Stack.Screen name="(onboarding)" />
-				</Stack>
-			</GestureHandlerRootView>
+			<Stack screenOptions={{ headerShown: false }}>
+				<Stack.Protected guard={isAuthenticated}>
+					<Stack.Screen name="(app)" />
+				</Stack.Protected>
+				<Stack.Protected
+					guard={!isAuthenticated && onboardingCompleted === true}
+				>
+					<Stack.Screen name="(auth)" />
+				</Stack.Protected>
+				{/* Unauthenticated: always allow auth routes; show onboarding group only if not completed */}
+				<Stack.Screen name="(onboarding)" />
+			</Stack>
 		</GluestackUIProvider>
 	);
 }
