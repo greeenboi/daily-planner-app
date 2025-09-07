@@ -35,20 +35,28 @@ Daily Planner is an Expo (React Native) application that lets a signed-in user c
 - Environment‑driven selection between local SQLite and LibSQL adapter
 
 ## Gallery
-Below are placeholder references for where to add screenshots. Replace the file paths or add hosted image URLs when assets are ready.
+Below are some screen captures of the ui
 
-| Screen | Description | Path / Placeholder |
-| ------ | ----------- | ------------------ |
-| Sign In | User authentication screen | (add screenshot) |
-| Onboarding | Initial guidance / setup flow | (add screenshot) |
-| Task List (Day) | Tasks filtered by selected day | (add screenshot) |
-| Task Creation | Form to enter title, times, reminders | (add screenshot) |
-| Task Detail | Expanded task view with participants and tags | (add screenshot) |
-
-Place image files (e.g. PNG) in a `docs/screenshots` directory or upload them to an image host (GitHub assets, CDN) and change `(add screenshot)` with `![Alt text](relative/or/url.png)`.
+| Screen | Description | Screenshots |
+| ------ | ----------- | ----------- |
+| Sign In | User authentication screen | <img src="https://github.com/user-attachments/assets/d1f03aec-2e15-4dd8-a80a-806b940e29a3" alt="Sign In 1" width="230" /> <img src="https://github.com/user-attachments/assets/48dd101b-30b8-4fd3-80a9-f7d91a6b08b7" alt="Sign In 2" width="230" /> |
+| Onboarding | Initial guidance / setup flow | <img src="https://github.com/user-attachments/assets/c87f3436-884b-4e47-bd3d-c9fcdffcd88a" alt="Onboarding 1" width="230" /> <img src="https://github.com/user-attachments/assets/ba60d673-3e5f-466c-a9d8-b73c9ec75e24" alt="Onboarding 2" width="230" /> <img src="https://github.com/user-attachments/assets/557251e6-3d8c-44e8-aa78-ff18a87dd1ae" alt="Onboarding 3" width="230" /> |
+| Planner (Day) | Tasks filtered by selected day | <img src="https://github.com/user-attachments/assets/cd0b4b8a-37d1-4310-97b4-23ac4f027816" alt="Planner Day" width="230" /> |
+| Tasks List | Tasks shown as a checklist | <img src="https://github.com/user-attachments/assets/34425ffe-d446-4310-8340-786a713b5ebc" alt="Tasks List" width="230" /> |
+| Task Detail | Expanded task view with participants and tags | <img src="https://github.com/user-attachments/assets/185490af-45d1-45b5-a32e-e921f0adf9c9" alt="Task Detail" width="230" /> |
 
 
+> [!NOTE]
+> Current master branch may have breaking changes detach to commit `9ec40a5a5ea77994056dc451c0533baec95e249e` when working / using the app
 
+## TODO
+
+The current app structure acts as a monorepo to bundle the server into a web compoenent outside of expo's android/ios build. The problem is that prisma depends on `node:fs` runtime which is not currently supported in [EAS hosting](https://docs.expo.dev/eas/hosting/reference/worker-runtime/#nodejs-compatibility), As a result I have to refactor the whole thing to a cloud build which does not depend on `node:fs`. I have tried uploading the `dist` to netlify, hosting on vercel, and even switching to turso + libsql for an entire overhaul on the system. All current implementations just point to use a different backend schema that does not depend on prisma. 
+So i will have to do:
+- [ ] Remove prisma implementation
+- [ ] check expo-sqlite feasability for better-auth
+- [ ] Refactor backend to make calls to server (hono-ts) if expo-sqlite does not work out
+- [ ] Refactor logic to work on only cloud / only local build based on option 2
 
 ## 🚀 How to use
 
@@ -79,3 +87,5 @@ npx prisma migrate deploy
 ```
 
 The mobile client will talk to the deployed API at `EXPO_PUBLIC_AUTH_BASE_URL/api/auth` and `.../api/tasks`.
+
+
