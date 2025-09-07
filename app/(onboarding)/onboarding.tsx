@@ -400,18 +400,9 @@ export default function Onboarding() {
 								})}
 							</View>
 							{last ? (
-								// <Button
-								// 	onPress={() => router.replace("/sign-up")}
-								// 	variant="solid"
-								// 	action="primary"
-								// 	accessibilityLabel="Finish onboarding"
-								// 	className="self-center mt-5 px-8 "
-								// >
-								// 	<ButtonText>Get Started</ButtonText>
-								// </Button>
 								<SlideAction
 									label={"Slide to Get Started"}
-									onConfirm={async () => router.replace("/sign-up")}
+									onConfirm={() => router.replace("/sign-up")}
 								/>
 							) : (
 								<View

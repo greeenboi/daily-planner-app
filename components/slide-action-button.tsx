@@ -4,7 +4,8 @@ import {
 	useEffect,
 	useReducer,
 	useRef,
-} from "react";
+	useState,
+} from 'react';
 import {
 	Animated,
 	Easing,
@@ -16,14 +17,14 @@ import {
 	Text,
 	View,
 	type ViewStyle,
-} from "react-native";
+} from 'react-native';
+import { LinearGradient } from '@/components/ui/linear-gradient';
+import { Icon, ChevronsRightIcon } from '@/components/ui/icon';
 
 export enum Status {
 	Initial = 1,
 	Moving = 2,
-	Verifying = 3,
-	Confirmed = 4,
-	Failed = 5,
+	Confirmed = 3,
 }
 
 interface Props {
@@ -31,15 +32,13 @@ interface Props {
 	renderSlider?: (status: Status) => React.ReactElement; // if provided overrides default knob
 	threshold?: number; // 0..1
 	onSwipeStart?: () => void;
-	onConfirm?: () => Promise<unknown> | undefined;
+	onConfirm?: () => void; // synchronous, navigation or side effects
 	children?: ReactNode; // optional custom center content (overrides label)
 	label?: string; // convenience centered label
 	onStatusChange?: (status: Status) => void;
 	height?: number; // track height
 	knobSize?: number; // knob diameter
 	trackBackgroundColor?: string;
-	knobColor?: string;
-	accentColor?: string; // used when confirmed / verifying
 	disabled?: boolean;
 }
 
@@ -78,13 +77,13 @@ export default (props: Props) => {
 		onStatusChange,
 		height = 56,
 		knobSize = 52,
-		trackBackgroundColor = "rgba(255,255,255,0.08)",
-		knobColor = "#FFFFFF",
-		accentColor = "#ff7a1a",
+		trackBackgroundColor = 'rgba(255,255,255,0.08)',
 		disabled = false,
 	} = props;
 
 	const [state, dispatch] = useReducer(reducer, initialState as State);
+	const [containerW, setContainerW] = useState(0);
+	const [knobWState, setKnobWState] = useState(knobSize);
 	const stateRef = useRef(state);
 	const setStatus = (s: Status) =>
 		dispatch({ type: "UpdateStatus", payload: s });
@@ -94,6 +93,7 @@ export default (props: Props) => {
 	const onSwipeStartRef = useRef(onSwipeStart);
 	const onConfirmRef = useRef(onConfirm);
 	const moveX = useRef(new Animated.Value(0)).current; // 0..(containerWidth - knobWidth)
+	const shimmerAnim = useRef(new Animated.Value(0)).current;
 
 	// Derived progress 0..1
 	const progress = useRef(new Animated.Value(0)).current;
@@ -104,6 +104,24 @@ export default (props: Props) => {
 		});
 		return () => moveX.removeListener(id);
 	}, [moveX, progress]);
+
+	// Shimmer loop (iOS style) when idle / initial
+	useEffect(() => {
+		if (state.status !== Status.Initial) return; // only shimmer when waiting
+		shimmerAnim.setValue(0);
+		let mounted = true;
+		Animated.loop(
+			Animated.timing(shimmerAnim, {
+				toValue: 1,
+				duration: 1800,
+				easing: Easing.inOut(Easing.linear),
+				useNativeDriver: true,
+			}),
+		).start();
+		return () => {
+			mounted = false;
+		};
+	}, [state.status, shimmerAnim]);
 
 	useEffect(() => {
 		if (state.status !== stateRef.current.status) {
@@ -134,16 +152,12 @@ export default (props: Props) => {
 	const panResponder = useRef(
 		PanResponder.create({
 			onStartShouldSetPanResponder: () => !disabled,
-			onStartShouldSetPanResponderCapture: () => !disabled, // capture so parent swipe pager doesn't steal it
+			onStartShouldSetPanResponderCapture: () => !disabled,
 			onMoveShouldSetPanResponder: () => !disabled,
 			onMoveShouldSetPanResponderCapture: () => !disabled,
 			onPanResponderTerminationRequest: () => false,
 			onPanResponderGrant: () => {
-				if (
-					disabled ||
-					[Status.Confirmed, Status.Verifying].includes(stateRef.current.status)
-				)
-					return;
+				if (disabled || stateRef.current.status === Status.Confirmed) return;
 				onSwipeStartRef.current?.();
 				moveX.stopAnimation();
 				setStatus(Status.Initial);
@@ -152,11 +166,7 @@ export default (props: Props) => {
 				_evt: GestureResponderEvent,
 				gestureState: PanResponderGestureState,
 			) => {
-				if (
-					disabled ||
-					[Status.Confirmed, Status.Verifying].includes(stateRef.current.status)
-				)
-					return;
+				if (disabled || stateRef.current.status === Status.Confirmed) return;
 				setStatus(Status.Moving);
 				const max = containerWidthRef.current - knobWidthRef.current;
 				const dx = Math.min(Math.max(0, gestureState.dx), Math.max(0, max));
@@ -166,31 +176,15 @@ export default (props: Props) => {
 				_evt: GestureResponderEvent,
 				gestureState: PanResponderGestureState,
 			) => {
-				if (
-					disabled ||
-					[Status.Confirmed, Status.Verifying].includes(stateRef.current.status)
-				)
-					return;
+				if (disabled || stateRef.current.status === Status.Confirmed) return;
 				const max = containerWidthRef.current - knobWidthRef.current;
 				const dx = Math.min(Math.max(0, gestureState.dx), Math.max(0, max));
 				const ratio = max > 0 ? dx / max : 0;
 				if (ratio >= threshold) {
-					if (onConfirmRef.current) {
-						const maybe = onConfirmRef.current();
-						if (maybe && typeof maybe.then === "function") {
-							setStatus(Status.Verifying);
-							animateTo(max);
-							maybe
-								.then(() => setStatus(Status.Confirmed))
-								.catch(() => setStatus(Status.Failed));
-						} else {
-							setStatus(Status.Confirmed);
-							animateTo(max);
-						}
-					} else {
-						setStatus(Status.Confirmed);
-						animateTo(max);
-					}
+					setStatus(Status.Confirmed);
+					animateTo(max, () => {
+						onConfirmRef.current?.();
+					});
 				} else {
 					setStatus(Status.Initial);
 					animateTo(0);
@@ -203,12 +197,9 @@ export default (props: Props) => {
 	useEffect(() => {
 		if (state.status === Status.Moving) return; // manual drag
 		const max = containerWidthRef.current - knobWidthRef.current;
-		if ([Status.Confirmed, Status.Verifying].includes(state.status)) {
+		if (state.status === Status.Confirmed) {
 			animateTo(Math.max(0, max));
-		} else if (
-			state.status === Status.Initial ||
-			state.status === Status.Failed
-		) {
+		} else if (state.status === Status.Initial) {
 			animateTo(0);
 		}
 	}, [state.status, animateTo]);
@@ -216,7 +207,18 @@ export default (props: Props) => {
 	const interpolatedLabelOpacity = progress.interpolate({
 		inputRange: [0, 0.75, 1],
 		outputRange: [0.55, 0.85, 1],
-		extrapolate: "clamp",
+		extrapolate: 'clamp',
+	});
+
+	const shimmerTranslate = shimmerAnim.interpolate({
+		inputRange: [0, 1],
+		outputRange: [-60, containerW + 60],
+	});
+
+	// Width of active gradient fill behind knob
+	const activeFillWidth = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [knobWState, Math.max(knobWState, containerW)],
 	});
 
 	return (
@@ -224,9 +226,10 @@ export default (props: Props) => {
 			style={[styles.container, { height }, containerStyle]}
 			onLayout={(e: LayoutChangeEvent) => {
 				containerWidthRef.current = e.nativeEvent.layout.width;
+				setContainerW(e.nativeEvent.layout.width);
 			}}
 		>
-			{/* Track */}
+			{/* Track base */}
 			<View
 				pointerEvents="none"
 				style={[
@@ -238,19 +241,57 @@ export default (props: Props) => {
 					},
 				]}
 			>
-				{/* Inset top highlight & bottom shadow */}
-				<View style={styles.insetTop} />
-				<View style={styles.insetBottom} />
+				{/* Active fill gradient */}
+				<Animated.View
+					style={{
+						position: 'absolute',
+						left: 0,
+						top: 0,
+						bottom: 0,
+						width: activeFillWidth,
+						borderRadius: height / 2,
+						overflow: 'hidden',
+					}}
+				>
+					<LinearGradient
+						colors={['rgba(134,55,207,0.55)', 'rgba(15,85,161,0.55)']}
+						start={[0, 0.5]}
+						end={[1, 0.5]}
+						className="w-full h-full opacity-60"
+					/>
+				</Animated.View>
+
+				{/* Label / content */}
 				<View style={styles.centerContent}>
 					{children ? (
 						children
 					) : (
-						<Animated.Text
-							style={[styles.labelText, { opacity: interpolatedLabelOpacity }]}
-							numberOfLines={1}
-						>
-							{label ?? "Slide to Continue"}
-						</Animated.Text>
+						<Animated.View style={{ opacity: interpolatedLabelOpacity }}>
+							<Text style={styles.labelText} numberOfLines={1}>
+								{label ?? 'Slide to Continue'}
+							</Text>
+							{/* Shimmer overlay */}
+							{state.status === Status.Initial && (
+								<Animated.View
+									pointerEvents="none"
+									style={{
+										position: 'absolute',
+										left: 0,
+										top: 0,
+										bottom: 0,
+										transform: [{ translateX: shimmerTranslate }],
+										width: 90,
+									}}
+								>
+									<LinearGradient
+										colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
+										start={[0, 0.5]}
+										end={[1, 0.5]}
+										className="h-full w-full"
+									/>
+								</Animated.View>
+							)}
+						</Animated.View>
 					)}
 				</View>
 			</View>
@@ -258,10 +299,11 @@ export default (props: Props) => {
 			{/* Knob */}
 			<Animated.View
 				accessibilityRole="button"
-				accessibilityLabel={label ?? "Slide handle"}
+				accessibilityLabel={label ?? 'Slide handle'}
 				style={{
-					position: "absolute",
+					position: 'absolute',
 					left: 0,
+					shadowColor: 'transparent',
 					top: (height - knobSize) / 2,
 					transform: [{ translateX: moveX }],
 				}}
@@ -269,46 +311,23 @@ export default (props: Props) => {
 				hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
 				onLayout={(e: LayoutChangeEvent) => {
 					knobWidthRef.current = e.nativeEvent.layout.width;
+					setKnobWState(e.nativeEvent.layout.width);
 				}}
 			>
 				{renderSlider ? (
 					renderSlider(state.status)
 				) : (
 					<View
-						style={[
-							styles.knob,
-							{
-								width: knobSize,
-								height: knobSize,
-								borderRadius: knobSize / 2,
-								backgroundColor:
-									state.status === Status.Confirmed ? accentColor : knobColor,
-							},
-						]}
+						style={{
+							width: knobSize,
+							height: knobSize,
+							borderRadius: knobSize / 2,
+							alignItems: 'center',
+							justifyContent: 'center',
+							backgroundColor: 'transparent',
+						}}
 					>
-						<View style={styles.chevronRow}>
-							<Text
-								style={[
-									styles.chevron,
-									{
-										color: state.status === Status.Confirmed ? "#fff" : "#000",
-										transform: [{ translateX: -2 }],
-									},
-								]}
-							>
-								›
-							</Text>
-							<Text
-								style={[
-									styles.chevron,
-									{
-										color: state.status === Status.Confirmed ? "#fff" : "#000",
-									},
-								]}
-							>
-								›
-							</Text>
-						</View>
+						<Icon as={ChevronsRightIcon} size="xl" className="text-white" />
 					</View>
 				)}
 			</Animated.View>
@@ -318,60 +337,26 @@ export default (props: Props) => {
 
 const styles = StyleSheet.create({
 	container: {
-		width: "100%",
-		position: "relative",
-		justifyContent: "center",
+		width: '100%',
+		position: 'relative',
+		justifyContent: 'center',
 	},
 	track: {
-		width: "100%",
+		width: '100%',
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.12)",
-		overflow: "hidden",
-	},
-	insetTop: {
-		position: "absolute",
-		top: 0,
-		left: 0,
-		right: 0,
-		height: 2,
-		backgroundColor: "rgba(255,255,255,0.18)",
-	},
-	insetBottom: {
-		position: "absolute",
-		bottom: 0,
-		left: 0,
-		right: 0,
-		height: 3,
-		backgroundColor: "rgba(0,0,0,0.25)",
+		borderColor: 'rgba(255,255,255,0.2)',
+		overflow: 'hidden',
 	},
 	centerContent: {
 		flex: 1,
-		justifyContent: "center",
-		alignItems: "center",
+		justifyContent: 'center',
+		alignItems: 'center',
 		paddingHorizontal: 28,
 	},
 	labelText: {
-		color: "#FFFFFF",
+		color: '#FFFFFF',
 		fontSize: 16,
-		fontWeight: "600",
+		fontWeight: '600',
 		letterSpacing: 0.4,
-	},
-	knob: {
-		justifyContent: "center",
-		alignItems: "center",
-		shadowColor: "#000",
-		shadowOpacity: 0.28,
-		shadowRadius: 10,
-		shadowOffset: { width: 0, height: 4 },
-		elevation: 5,
-	},
-	chevronRow: {
-		flexDirection: "row",
-		alignItems: "center",
-	},
-	chevron: {
-		fontSize: 28,
-		fontWeight: "700",
-		lineHeight: 30,
 	},
 });
