@@ -18,6 +18,8 @@
 
 # Daily Planner
 
+https://github.com/user-attachments/assets/2e9a32ae-354d-48c6-b988-47ad5d826a6f
+
 ## Introduction
 Daily Planner is an Expo (React Native) application that lets a signed-in user create, view and manage scheduled tasks with time ranges, optional reminders, repetition rules and tagging. Authentication is handled through Better Auth with a Prisma-backed data store. The same codebase serves API routes (for auth and tasks) and the mobile/web client. Local SQLite (via Prisma) is used in development; a LibSQL/Turso database can be enabled in production through environment variables.
 
